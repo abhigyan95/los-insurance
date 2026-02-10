@@ -32,6 +32,9 @@ const companyLogos: Record<string, string> = {
   "bajaj-general": "/bajaj-general-logo.png",
   "bajaj-life": "/bajaj-life-logo.avif",
   "bajaj-finserv-health": "/bajaj-health-logo.avif",
+  "icici": "/placeholder-logo.png",
+  "max-life": "/placeholder-logo.png",
+  "new-life": "/placeholder-logo.png",
 }
 
 function EditProductModal({
@@ -46,7 +49,7 @@ function EditProductModal({
   onSave: (sumInsured: string, premium: number) => void
 }) {
   const [selectedSumInsured, setSelectedSumInsured] = useState(product.sumInsured || "₹0")
-  const premiumAmount = product.annualPremium || product.productAmount || "₹0"
+  const premiumAmount = product.productAmount || product.annualPremium || "₹0"
   const [customPremium, setCustomPremium] = useState(Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "") || "0"))
 
   const handleCalculatePremium = (sumInsuredValue: string) => {
@@ -139,8 +142,8 @@ function ComparisonModal({
     })
 
     rows.push({
-      label: "Annual Premium",
-      values: products.map((p) => p.annualPremium),
+      label: "Product Amount",
+      values: products.map((p) => p.productAmount || p.annualPremium || "N/A"),
     })
 
     if (products.some((p) => p.productType === "health")) {
@@ -148,13 +151,12 @@ function ComparisonModal({
         label: "Network Hospitals",
         values: products.map((p) => (p.networkHospitals ? `${p.networkHospitals.toLocaleString()}` : "N/A")),
       })
+    }
+
+    if (products.some((p) => p.productTenure)) {
       rows.push({
-        label: "Room Rent Limit",
-        values: products.map((p) => p.roomRentLimit || "N/A"),
-      })
-      rows.push({
-        label: "Waiting Period",
-        values: products.map((p) => p.waitingPeriod || "N/A"),
+        label: "Product Tenure",
+        values: products.map((p) => p.productTenure || "N/A"),
       })
     }
 
@@ -371,7 +373,9 @@ export function InsuranceRecommendationsStep() {
   }, [searchTerm, filterType, filterCompany])
 
   const handleSelectProduct = (product: InsuranceProductData) => {
-    addSelectedProduct(product, product.sumInsured)
+    // Use availableSumInsured if available, otherwise use sumInsured
+    const sumInsuredToUse = product.availableSumInsured?.[0] || product.sumInsured
+    addSelectedProduct(product, sumInsuredToUse)
     // setShowSummaryPanel(true)
   }
 
@@ -526,10 +530,10 @@ export function InsuranceRecommendationsStep() {
                         <span className="text-muted-foreground">Product Amount</span>
                         <span className="font-medium">{product.productAmount}</span>
                       </div>
-                      {product.waitingPeriod && (
+                      {product.productTenure && (
                         <div className="flex justify-between">
                           <span className="text-muted-foreground">Product Tenure</span>
-                          <span className="font-medium">{product.waitingPeriod}</span>
+                          <span className="font-medium">{product.productTenure}</span>
                         </div>
                       )}
                     </div>

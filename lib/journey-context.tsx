@@ -5,37 +5,41 @@ import type { InsuranceProposalData } from "./insurance-proposal-data" // Assumi
 
 export interface LoanApplicationData {
   fullName: string
-  dateOfBirth: string
+  parentName?: string
+  dateOfBirth?: string
   mobile: string
   email: string
-  pan: string
-  aadhaar: string
+  pan?: string
+  aadhaar?: string
   currentAddress: string
   city: string
   state: string
   pincode: string
   loanAmount: string
-  loanTenure: string
-  propertyType: string
-  employmentType: string
-  monthlyIncome: string
+  loanTenure?: string
+  educationType?: string
+  moratorium?: string
+  propertyType?: string
+  employmentType?: string
+  monthlyIncome?: string
 }
 
 export interface InsuranceProductData {
   insurerId: string
-  insurerName: string
-  insurerLogo: string
   productName: string
-  productType: "health" | "creditlife" | "home" | "wellness"
-  companyCategory: "bajaj-general" | "bajaj-life" | "bajaj-finserv-health"
+  insurerName: string
+  productType: "vas" | "travel" | "creditlife" | "health"
+  companyCategory: "bajaj-general" | "bajaj-life" | "bajaj-finserv-health" | "icici" | "max-life" | "new-life"
   sumInsured: string
-  availableSumInsured: string[]
-  annualPremium: string
-  keyBenefits: string[]
-  networkHospitals?: number
-  roomRentLimit?: string
-  waitingPeriod?: string
+  availableSumInsured?: string[]
+  productAmount: string
+  annualPremium?: string
   chargeCode: string
+  keyBenefits: string[]
+  cover?: string
+  productTenure?: string
+  networkHospitals?: number
+  insurerLogo?: string
 }
 
 export interface SelectedProductConfig {
@@ -109,10 +113,19 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   }
 
   const addSelectedProduct = (product: InsuranceProductData, sumInsured: string) => {
-    const premiumAmount = product.annualPremium || product.productAmount
-    const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, ""))
+    // Get premium from productAmount first, then annualPremium, default to "₹0" if neither exists
+    const premiumAmount = product.productAmount || product.annualPremium || "₹0"
+    
+    // Handle case where premiumAmount might be undefined or empty
+    if (!premiumAmount || premiumAmount === "₹0") {
+      console.warn(`Product premium not found for ${product.productName}, using default ₹0`)
+    }
+    
+    // Safely parse the premium amount, defaulting to 0 if parsing fails
+    const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "")) || 0
     const gst = Math.round(basePremium * 0.18 * 10) / 10
     const total = basePremium + gst
+    
     setState((prev) => ({
       ...prev,
       selectedInsuranceProducts: [
