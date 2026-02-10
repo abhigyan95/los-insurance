@@ -497,7 +497,7 @@ export function InsuranceRecommendationsStep() {
                       alt={product.insurerName}
                       width={28}
                       height={28}
-                      className="h-7 w-auto object-contain"
+                      className="h-auto w-7 object-contain"
                     />
                     <div className="flex-1">
                       <CardTitle className="text-sm font-bold">{product.productName}</CardTitle>

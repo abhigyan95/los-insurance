@@ -143,7 +143,7 @@ export function InsuranceDecisionConfirmationStep() {
                             alt={product.insurerName}
                             width={24}
                             height={24}
-                            className="h-6 w-auto"
+                            className="h-auto w-6"
                           />
                           <CardTitle className="text-sm font-semibold">{product.productName}</CardTitle>
                         </div>
