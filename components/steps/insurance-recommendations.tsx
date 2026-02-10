@@ -518,7 +518,7 @@ export function InsuranceRecommendationsStep() {
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Product Amount</span>
-                      <span className="font-medium">₹{product.annualPremium.replace("₹", "")}</span>
+                      <span className="font-medium">{product.productAmount}</span>
                     </div>
                     {product.waitingPeriod && (
                       <div className="flex justify-between">
