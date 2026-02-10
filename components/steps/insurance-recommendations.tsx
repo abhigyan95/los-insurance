@@ -45,15 +45,15 @@ function EditProductModal({
   onClose: () => void
   onSave: (sumInsured: string, premium: number) => void
 }) {
-  const [selectedSumInsured, setSelectedSumInsured] = useState(product.sumInsured)
-  const premiumAmount = product.annualPremium || product.productAmount
-  const [customPremium, setCustomPremium] = useState(Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "")))
+  const [selectedSumInsured, setSelectedSumInsured] = useState(product.sumInsured || "₹0")
+  const premiumAmount = product.annualPremium || product.productAmount || "₹0"
+  const [customPremium, setCustomPremium] = useState(Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "") || "0"))
 
   const handleCalculatePremium = (sumInsuredValue: string) => {
-    const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, ""))
-    const multiplier =
-      Number.parseFloat(sumInsuredValue.replace(/[₹,\s]/g, "")) /
-      Number.parseFloat(product.sumInsured.replace(/[₹,\s]/g, ""))
+    const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "") || "0")
+    const sumInsuredNum = Number.parseFloat((product.sumInsured || "₹0").replace(/[₹,\s]/g, "") || "0")
+    const selectedNum = Number.parseFloat(sumInsuredValue.replace(/[₹,\s]/g, "") || "0")
+    const multiplier = sumInsuredNum > 0 ? selectedNum / sumInsuredNum : 1
     setCustomPremium(Math.round(basePremium * multiplier * 10) / 10)
   }
 
