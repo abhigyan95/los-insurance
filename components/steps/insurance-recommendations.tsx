@@ -366,7 +366,7 @@ export function InsuranceRecommendationsStep() {
   }, [searchTerm, filterType, filterCompany])
 
   const handleSelectProduct = (product: InsuranceProductData) => {
-    addSelectedProduct(product, product.availableSumInsured[0])
+    addSelectedProduct(product, product.sumInsured)
     // setShowSummaryPanel(true)
   }
 
