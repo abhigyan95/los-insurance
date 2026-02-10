@@ -45,14 +45,15 @@ function EditProductModal({
   onClose: () => void
   onSave: (sumInsured: string, premium: number) => void
 }) {
-  const [selectedSumInsured, setSelectedSumInsured] = useState(product.availableSumInsured[0])
-  const [customPremium, setCustomPremium] = useState(Number.parseFloat(product.annualPremium.replace(/[₹,]/g, "")))
+  const [selectedSumInsured, setSelectedSumInsured] = useState(product.sumInsured)
+  const premiumAmount = product.annualPremium || product.productAmount
+  const [customPremium, setCustomPremium] = useState(Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "")))
 
   const handleCalculatePremium = (sumInsuredValue: string) => {
-    const basePremium = Number.parseFloat(product.annualPremium.replace(/[₹,]/g, ""))
+    const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, ""))
     const multiplier =
-      Number.parseFloat(sumInsuredValue.replace(/[₹,]/g, "")) /
-      Number.parseFloat(product.sumInsured.replace(/[₹,]/g, ""))
+      Number.parseFloat(sumInsuredValue.replace(/[₹,\s]/g, "")) /
+      Number.parseFloat(product.sumInsured.replace(/[₹,\s]/g, ""))
     setCustomPremium(Math.round(basePremium * multiplier * 10) / 10)
   }
 
@@ -77,11 +78,15 @@ function EditProductModal({
                 <SelectValue placeholder="Select sum insured" />
               </SelectTrigger>
               <SelectContent>
-                {product.availableSumInsured.map((amount) => (
-                  <SelectItem key={amount} value={amount}>
-                    {amount}
-                  </SelectItem>
-                ))}
+                {product.availableSumInsured && product.availableSumInsured.length > 0 ? (
+                  product.availableSumInsured.map((amount) => (
+                    <SelectItem key={amount} value={amount}>
+                      {amount}
+                    </SelectItem>
+                  ))
+                ) : (
+                  <SelectItem value={product.sumInsured}>{product.sumInsured}</SelectItem>
+                )}
               </SelectContent>
             </Select>
           </div>
@@ -507,42 +512,44 @@ export function InsuranceRecommendationsStep() {
                 </CardHeader>
 
                 {/* Content: Key Metrics */}
-                <CardContent className="flex-1 flex flex-col p-4 space-y-4">
-                  {/* Sum Insured Section */}
-                  <div className="border-b pb-3">
-                    <p className="text-xs text-muted-foreground mb-1">Sum Insured</p>
-                    <p className="text-lg font-bold text-primary">{product.sumInsured}</p>
-                  </div>
-
-                  {/* Product Details */}
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Product Amount</span>
-                      <span className="font-medium">{product.productAmount}</span>
+                <CardContent className="flex-1 flex flex-col p-4 space-y-4 justify-between">
+                  <div className="space-y-4">
+                    {/* Sum Insured Section */}
+                    <div className="border-b pb-3">
+                      <p className="text-xs text-muted-foreground mb-1">Sum Insured</p>
+                      <p className="text-lg font-bold text-primary">{product.sumInsured}</p>
                     </div>
-                    {product.waitingPeriod && (
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">Product Tenure</span>
-                        <span className="font-medium">{product.waitingPeriod}</span>
-                      </div>
-                    )}
-                  </div>
 
-                  {/* Key Benefits */}
-                  <div className="border-t pt-3">
-                    <h4 className="text-xs font-bold text-foreground mb-2">Key Benefits</h4>
-                    <ul className="space-y-1.5">
-                      {product.keyBenefits.slice(0, 4).map((benefit, idx) => (
-                        <li key={idx} className="flex gap-2 text-xs text-muted-foreground">
-                          <span className="text-primary font-bold shrink-0">•</span>
-                          <span>{benefit}</span>
-                        </li>
-                      ))}
-                    </ul>
+                    {/* Product Details */}
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">Product Amount</span>
+                        <span className="font-medium">{product.productAmount}</span>
+                      </div>
+                      {product.waitingPeriod && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">Product Tenure</span>
+                          <span className="font-medium">{product.waitingPeriod}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Key Benefits */}
+                    <div className="border-t pt-3">
+                      <h4 className="text-xs font-bold text-foreground mb-2">Key Benefits</h4>
+                      <ul className="space-y-1.5">
+                        {product.keyBenefits.slice(0, 4).map((benefit, idx) => (
+                          <li key={idx} className="flex gap-2 text-xs text-muted-foreground">
+                            <span className="text-primary font-bold shrink-0">•</span>
+                            <span>{benefit}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2 mt-4 pt-2">
+                  <div className="flex gap-2 pt-2">
                     {!isSelected && (
                       <Button
                         onClick={() => handleSelectProduct(product)}
