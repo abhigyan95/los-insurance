@@ -109,7 +109,8 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   }
 
   const addSelectedProduct = (product: InsuranceProductData, sumInsured: string) => {
-    const basePremium = Number.parseFloat(product.annualPremium.replace(/[₹,]/g, ""))
+    const premiumAmount = product.annualPremium || product.productAmount
+    const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, ""))
     const gst = Math.round(basePremium * 0.18 * 10) / 10
     const total = basePremium + gst
     setState((prev) => ({
