@@ -45,15 +45,15 @@ export function SendCustomerLinkStep() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Button onClick={() => setCurrentStep(4)} variant="outline" size="sm" className="mb-4">
+      <Button onClick={() => setCurrentStep(4)} variant="outline" size="sm" className="mb-4 shadow-sm hover:shadow-md transition-shadow">
         <ArrowLeftIcon className="size-4 mr-2" />
         Back
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl text-balance">Send Products Confirmation Link to Customer</CardTitle>
-          <CardDescription>
+      <Card className="shadow-lg border-2">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
+          <CardTitle className="text-2xl text-balance font-bold">Send Products Confirmation Link to Customer</CardTitle>
+          <CardDescription className="text-base mt-2">
             The customer will receive a link to review and confirm the selected products and application details
           </CardDescription>
           <div className="flex items-start gap-2 mt-4 p-3 rounded-lg bg-accent">

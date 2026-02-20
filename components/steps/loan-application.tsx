@@ -25,10 +25,10 @@ export function LoanApplicationStep() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Card>
-        <CardHeader>
+      <Card className="shadow-lg border-2">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
           <CardTitle className="text-2xl text-balance">Education Loan Application</CardTitle>
-          <CardDescription>Please provide your details to proceed with the application</CardDescription>
+          <CardDescription className="text-base mt-2">Please provide your details to proceed with the application</CardDescription>
         </CardHeader>
         <CardContent className="space-y-8">
           {/* Applicant Details Section */}
@@ -218,9 +218,9 @@ export function LoanApplicationStep() {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex justify-center pt-4">
-            <Button onClick={() => handleSubmit()} size="md">
-              Submit
+          <div className="flex justify-center pt-6">
+            <Button onClick={() => handleSubmit()} size="lg" className="min-w-[200px] h-12 text-base font-semibold shadow-lg hover:shadow-xl transition-all">
+              Submit Application
             </Button>
           </div>
         </CardContent>

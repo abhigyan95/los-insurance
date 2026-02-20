@@ -10,8 +10,114 @@ export function SuccessStep() {
   const { state, resetJourney } = useJourney()
 
   const handleDownloadProposal = () => {
-    // Simulate downloading proposal
-    console.log("Downloading proposal...")
+    // Create PDF content
+    const content = generateProposalContent()
+    const blob = new Blob([content], { type: "text/html" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+    link.href = url
+    link.download = `Proposal-${state.losId || "Application"}.html`
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    
+    // For actual PDF, you would use a library like jsPDF or html2pdf
+    // This creates an HTML file that can be printed to PDF
+  }
+
+  const generateProposalContent = () => {
+    const totalPremium = state.selectedInsuranceProducts?.reduce((sum, item) => sum + item.calculatedPremium, 0) || 0
+    const allProducts = state.selectedInsuranceProducts || []
+    
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Insurance Proposal - ${state.losId}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    h1 { color: #1a1a1a; }
+    h2 { color: #333; margin-top: 20px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f2f2f2; }
+    .section { margin: 20px 0; }
+  </style>
+</head>
+<body>
+  <h1>Insurance Proposal</h1>
+  <p><strong>Application ID:</strong> ${state.losId || "N/A"}</p>
+  <p><strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+  
+  <div class="section">
+    <h2>Applicant Details</h2>
+    <table>
+      <tr><th>Name</th><td>${state.loanApplication.fullName || "N/A"}</td></tr>
+      <tr><th>Email</th><td>${state.loanApplication.email || "N/A"}</td></tr>
+      <tr><th>Mobile</th><td>${state.loanApplication.mobile || "N/A"}</td></tr>
+      <tr><th>Loan Amount</th><td>₹${Number(state.loanApplication.loanAmount || 0).toLocaleString("en-IN")}</td></tr>
+    </table>
+  </div>
+  
+  <div class="section">
+    <h2>Additional Details</h2>
+    <table>
+      <tr><th>Gender</th><td>${state.insuranceProposal.gender || "N/A"}</td></tr>
+      <tr><th>Height</th><td>${state.insuranceProposal.height || "N/A"} cm</td></tr>
+      <tr><th>Weight</th><td>${state.insuranceProposal.weight || "N/A"} kg</td></tr>
+      <tr><th>Occupation</th><td>${state.insuranceProposal.occupation || "N/A"}</td></tr>
+      <tr><th>Nominee</th><td>${state.insuranceProposal.nomineeName || "N/A"}</td></tr>
+    </table>
+  </div>
+  
+  ${state.insuranceProposal.hasPreexistingDiseases ? `
+  <div class="section">
+    <h2>Medical Information</h2>
+    <p><strong>Pre-existing Conditions:</strong> Yes</p>
+    <p><strong>Conditions:</strong> ${(state.insuranceProposal.selectedMedicalConditions || []).join(", ") || "N/A"}</p>
+  </div>
+  ` : ""}
+  
+  <div class="section">
+    <h2>Available Products</h2>
+    <p>Total products available: Multiple options across Health, Travel, and Credit Life Insurance</p>
+  </div>
+  
+  <div class="section">
+    <h2>Selected Products</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Product Name</th>
+          <th>Insurer</th>
+          <th>Sum Insured</th>
+          <th>Premium</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${allProducts.map(
+          (item) => `
+        <tr>
+          <td>${item.product.productName}</td>
+          <td>${item.product.insurerName}</td>
+          <td>${item.selectedSumInsured}</td>
+          <td>₹${item.calculatedPremium.toLocaleString("en-IN")}</td>
+        </tr>
+        `
+        ).join("")}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th colspan="3">Total Premium</th>
+          <th>₹${totalPremium.toLocaleString("en-IN")}</th>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
+</body>
+</html>
+    `
   }
 
   const handleStartNew = () => {
@@ -20,15 +126,15 @@ export function SuccessStep() {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <Card>
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex size-20 items-center justify-center rounded-full bg-success/10">
-            <CheckCircleIcon className="size-12 text-success" />
+      <Card className="shadow-xl border-2 border-success/20">
+        <CardHeader className="text-center py-8 bg-gradient-to-br from-success/5 to-transparent">
+          <div className="mx-auto mb-6 flex size-24 items-center justify-center rounded-full bg-success/10 shadow-lg">
+            <CheckCircleIcon className="size-14 text-success" />
           </div>
-          <CardTitle className="text-3xl text-success">
-            Congratulations your Bajaj Insurance Plan is Submitted!
+          <CardTitle className="text-3xl text-success font-bold">
+            Congratulations! Your Insurance Plan is Submitted!
           </CardTitle>
-          <CardDescription className="text-base">
+          <CardDescription className="text-base mt-3">
             Your loan is disbursed and insurance will be active soon
           </CardDescription>
         </CardHeader>
@@ -168,11 +274,11 @@ export function SuccessStep() {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Button onClick={handleDownloadProposal} variant="outline">
-              <FileTextIcon className="size-4 mr-2" />
+            <Button onClick={handleDownloadProposal} size="lg" className="min-w-[250px] h-12 text-base font-semibold shadow-lg hover:shadow-xl">
+              <FileTextIcon className="size-5 mr-2" />
               Download Proposal
             </Button>
-            <Button onClick={handleStartNew} className="bg-primary hover:bg-primary/90">
+            <Button onClick={handleStartNew} variant="outline" size="lg" className="min-w-[250px] h-12 text-base">
               Fill New Application
             </Button>
           </div>

@@ -6,4 +6,6 @@ export interface InsuranceProposalData {
   height?: string
   weight?: string
   existingMedicalConditions?: string
+  hasPreexistingDiseases?: boolean
+  selectedMedicalConditions?: string[]
 }

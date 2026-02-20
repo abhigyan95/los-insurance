@@ -8,14 +8,43 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { Checkbox } from "@/components/ui/checkbox"
 import { AlertCircleIcon, LockIcon, CheckCircleIcon, ArrowLeftIcon } from "lucide-react"
+
+const medicalConditions = [
+  "Diabetes",
+  "Hypertension",
+  "Heart Disease",
+  "Asthma",
+  "Thyroid Disorders",
+  "Kidney Disease",
+  "Liver Disease",
+  "Cancer",
+  "Arthritis",
+  "Mental Health Conditions",
+  "Other",
+]
 
 export function InsuranceProposalStep() {
   const { state, updateInsuranceProposal, setCurrentStep } = useJourney()
-  const [proposalData, setProposalData] = useState(state.insuranceProposal)
+  const [proposalData, setProposalData] = useState({
+    ...state.insuranceProposal,
+    hasPreexistingDiseases: state.insuranceProposal.hasPreexistingDiseases || false,
+    selectedMedicalConditions: state.insuranceProposal.selectedMedicalConditions || [],
+  })
 
-  const handleChange = (field: string, value: string) => {
+  const handleChange = (field: string, value: string | boolean) => {
     setProposalData((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const handleMedicalConditionToggle = (condition: string) => {
+    setProposalData((prev) => {
+      const current = prev.selectedMedicalConditions || []
+      const updated = current.includes(condition)
+        ? current.filter((c) => c !== condition)
+        : [...current, condition]
+      return { ...prev, selectedMedicalConditions: updated }
+    })
   }
 
   const handleSubmit = () => {
@@ -34,15 +63,15 @@ export function InsuranceProposalStep() {
 
   return (
     <div className="max-w-4xl mx-auto">
-      <Button onClick={() => setCurrentStep(3)} variant="outline" size="sm" className="mb-4">
+      <Button onClick={() => setCurrentStep(3)} variant="outline" size="sm" className="mb-4 shadow-sm hover:shadow-md transition-shadow">
         <ArrowLeftIcon className="size-4 mr-2" />
         Back to Product Selection
       </Button>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-2xl text-balance">Third Party Products Application Form</CardTitle>
-          <CardDescription>Complete the application details for all selected products</CardDescription>
+      <Card className="shadow-lg border-2">
+        <CardHeader className="bg-gradient-to-r from-primary/5 to-transparent border-b">
+          <CardTitle className="text-2xl text-balance font-bold">Third Party Products Application Form</CardTitle>
+          <CardDescription className="text-base mt-2">Complete the application details for all selected products</CardDescription>
           <div className="flex items-start gap-2 mt-4 p-3 rounded-lg bg-accent">
             <AlertCircleIcon className="size-5 text-accent-foreground shrink-0 mt-0.5" />
             <p className="text-sm text-accent-foreground leading-relaxed">
@@ -214,6 +243,71 @@ export function InsuranceProposalStep() {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="height">Height (cm) *</Label>
+                <Input
+                  id="height"
+                  type="number"
+                  placeholder="Enter height in cm"
+                  value={proposalData.height || ""}
+                  onChange={(e) => handleChange("height", e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="weight">Weight (kg) *</Label>
+                <Input
+                  id="weight"
+                  type="number"
+                  placeholder="Enter weight in kg"
+                  value={proposalData.weight || ""}
+                  onChange={(e) => handleChange("weight", e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator />
+
+          {/* Medical Conditions Section */}
+          <div className="space-y-4">
+            <h3 className="font-semibold text-lg text-foreground">Medical Information</h3>
+            <div className="space-y-4">
+              <div className="flex items-start gap-3 p-4 rounded-lg border">
+                <Checkbox
+                  id="hasPreexistingDiseases"
+                  checked={proposalData.hasPreexistingDiseases || false}
+                  onCheckedChange={(checked) => handleChange("hasPreexistingDiseases", checked as boolean)}
+                  className="mt-1"
+                />
+                <Label htmlFor="hasPreexistingDiseases" className="cursor-pointer flex-1">
+                  <p className="font-medium mb-1">Do you have any pre-existing medical conditions?</p>
+                  <p className="text-sm text-muted-foreground">
+                    Please select if you have been diagnosed with any medical conditions
+                  </p>
+                </Label>
+              </div>
+
+              {proposalData.hasPreexistingDiseases && (
+                <div className="p-4 rounded-lg border bg-muted/30 space-y-3">
+                  <Label className="text-sm font-medium">Please select all applicable conditions:</Label>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {medicalConditions.map((condition) => (
+                      <div key={condition} className="flex items-center gap-2">
+                        <Checkbox
+                          id={`condition-${condition}`}
+                          checked={(proposalData.selectedMedicalConditions || []).includes(condition)}
+                          onCheckedChange={() => handleMedicalConditionToggle(condition)}
+                        />
+                        <Label htmlFor={`condition-${condition}`} className="cursor-pointer text-sm">
+                          {condition}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
