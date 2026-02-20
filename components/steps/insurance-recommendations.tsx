@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Search, X, Edit2, Trash2, ChevronLeft, ShoppingCart, Plus } from "lucide-react"
+import { Search, X, Edit2, Trash2, ChevronLeft, ShoppingCart, Plus, ArrowRight } from "lucide-react"
 import { insuranceProducts } from "@/lib/insurance-data"
 import { useJourney, type InsuranceProductData } from "@/lib/journey-context"
 import Image from "next/image"
@@ -50,14 +50,28 @@ function EditProductModal({
 }) {
   const [selectedSumInsured, setSelectedSumInsured] = useState(product.sumInsured || "₹0")
   const premiumAmount = product.productAmount || product.annualPremium || "₹0"
-  const [customPremium, setCustomPremium] = useState(Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "") || "0"))
+  const [customSumInsured, setCustomSumInsured] = useState("")
+  const [useCustom, setUseCustom] = useState(false)
 
   const handleCalculatePremium = (sumInsuredValue: string) => {
     const basePremium = Number.parseFloat(premiumAmount.replace(/[₹,\s]/g, "") || "0")
     const sumInsuredNum = Number.parseFloat((product.sumInsured || "₹0").replace(/[₹,\s]/g, "") || "0")
     const selectedNum = Number.parseFloat(sumInsuredValue.replace(/[₹,\s]/g, "") || "0")
     const multiplier = sumInsuredNum > 0 ? selectedNum / sumInsuredNum : 1
-    setCustomPremium(Math.round(basePremium * multiplier * 10) / 10)
+    return Math.round(basePremium * multiplier * 10) / 10
+  }
+
+  const [customPremium, setCustomPremium] = useState(handleCalculatePremium(selectedSumInsured))
+
+  const handleSumInsuredChange = (value: string) => {
+    if (useCustom) {
+      setCustomSumInsured(value)
+      const numValue = Number.parseFloat(value.replace(/[₹,\s]/g, "") || "0")
+      setCustomPremium(handleCalculatePremium(`₹${numValue.toLocaleString("en-IN")}`))
+    } else {
+      setSelectedSumInsured(value)
+      setCustomPremium(handleCalculatePremium(value))
+    }
   }
 
   if (!isOpen) return null
@@ -71,33 +85,57 @@ function EditProductModal({
         <div className="space-y-4">
           <div>
             <Label className="text-sm font-medium mb-2 block">Sum Insured</Label>
-            <Select
-              onValueChange={(value) => {
-                setSelectedSumInsured(value)
-                handleCalculatePremium(value)
-              }}
-            >
-              <SelectTrigger className="w-full px-3 py-2 border rounded-md text-sm">
-                <SelectValue placeholder="Select sum insured" />
-              </SelectTrigger>
-              <SelectContent>
-                {product.availableSumInsured && product.availableSumInsured.length > 0 ? (
-                  product.availableSumInsured.map((amount) => (
-                    <SelectItem key={amount} value={amount}>
-                      {amount}
-                    </SelectItem>
-                  ))
-                ) : (
-                  <SelectItem value={product.sumInsured}>{product.sumInsured}</SelectItem>
-                )}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="use-custom-sum"
+                  checked={useCustom}
+                  onCheckedChange={(checked) => {
+                    setUseCustom(checked as boolean)
+                    if (checked) {
+                      setCustomSumInsured("")
+                    }
+                  }}
+                />
+                <Label htmlFor="use-custom-sum" className="text-sm cursor-pointer">
+                  Enter custom amount
+                </Label>
+              </div>
+              {useCustom ? (
+                <Input
+                  type="text"
+                  placeholder="Enter amount (e.g., ₹50,00,000)"
+                  value={customSumInsured}
+                  onChange={(e) => handleSumInsuredChange(e.target.value)}
+                />
+              ) : (
+                <Select
+                  value={selectedSumInsured}
+                  onValueChange={handleSumInsuredChange}
+                >
+                  <SelectTrigger className="w-full px-3 py-2 border rounded-md text-sm">
+                    <SelectValue placeholder="Select sum insured" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {product.availableSumInsured && product.availableSumInsured.length > 0 ? (
+                      product.availableSumInsured.map((amount) => (
+                        <SelectItem key={amount} value={amount}>
+                          {amount}
+                        </SelectItem>
+                      ))
+                    ) : (
+                      <SelectItem value={product.sumInsured}>{product.sumInsured}</SelectItem>
+                    )}
+                  </SelectContent>
+                </Select>
+              )}
+            </div>
           </div>
 
           <div>
             <Label className="text-sm font-medium mb-2 block">Calculated Premium</Label>
             <div className="flex items-center gap-2 px-3 py-2 bg-muted rounded-md">
-              <span className="size-4">₹</span>
+              <span>₹</span>
               <span className="font-semibold">{customPremium.toLocaleString("en-IN")}</span>
             </div>
           </div>
@@ -106,7 +144,10 @@ function EditProductModal({
             <Button onClick={onClose} variant="outline" className="flex-1 bg-transparent">
               Cancel
             </Button>
-            <Button onClick={() => onSave(selectedSumInsured, customPremium)} className="flex-1">
+            <Button
+              onClick={() => onSave(useCustom ? customSumInsured : selectedSumInsured, customPremium)}
+              className="flex-1"
+            >
               <span className="size-4 mr-2">✓</span>
               Save Changes
             </Button>
@@ -251,18 +292,7 @@ function SummaryPanel({
       {/* Backdrop */}
       {isOpen && <div className="fixed inset-0 bg-black/30 z-30 lg:hidden" onClick={onClose} />}
 
-      {!isOpen && products.length > 0 && (
-        <button
-          onClick={onOpen}
-          className="fixed bottom-6 right-6 z-40 bg-primary text-white rounded-full p-4 shadow-lg hover:shadow-xl transition-all flex flex-col items-center justify-center gap-1 w-20 h-20"
-        >
-          <ShoppingCart className="size-5" />
-          <span className="text-xs font-semibold">{products.length}</span>
-          <span className="text-xs">{formatPremium(totalPremium)}</span>
-        </button>
-      )}
-
-      {/* Sliding Panel */}
+      {/* Sliding Panel - No floating bubble */}
       <div
         className={`fixed right-0 top-0 h-full w-full sm:w-96 bg-white shadow-2xl transform transition-transform duration-300 ease-out z-40 flex flex-col ${
           isOpen ? "translate-x-0" : "translate-x-full"
@@ -457,11 +487,6 @@ export function InsuranceRecommendationsStep() {
                 Compare ({compareProducts.size})
               </Button>
             )}
-            {state.selectedInsuranceProducts.length > 0 && (
-              <Button onClick={() => setShowSummaryPanel(true)} size="sm">
-                Review ({state.selectedInsuranceProducts.length})
-              </Button>
-            )}
           </div>
         </div>
       </div>
@@ -578,6 +603,41 @@ export function InsuranceRecommendationsStep() {
           })
         )}
       </div>
+
+      {/* Prominent Review & Proceed Section */}
+      {state.selectedInsuranceProducts.length > 0 && (
+        <div className="sticky bottom-0 bg-background border-t shadow-lg p-6 mt-8">
+          <div className="max-w-4xl mx-auto">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Selected Products ({state.selectedInsuranceProducts.length})</h3>
+                <p className="text-sm text-muted-foreground">
+                  Total Premium: <span className="font-bold text-primary text-lg">₹{totalPremium.toLocaleString("en-IN")}</span>
+                </p>
+              </div>
+              <Button
+                onClick={() => setShowSummaryPanel(true)}
+                size="lg"
+                variant="outline"
+                className="min-w-[150px]"
+              >
+                <ShoppingCart className="size-4 mr-2" />
+                Review Products
+              </Button>
+            </div>
+            <Button
+              onClick={() => {
+                setCurrentStep(4) // Go to Proposal page
+              }}
+              size="lg"
+              className="w-full min-h-[50px] text-base font-semibold shadow-lg hover:shadow-xl"
+            >
+              Proceed to Application Form
+              <ArrowRight className="size-5 ml-2" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {editingProduct && (
         <EditProductModal
