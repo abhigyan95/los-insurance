@@ -367,8 +367,9 @@ function SummaryPanel({
                 <span className="text-lg font-bold text-primary">₹{totalPremium.toLocaleString("en-IN")}</span>
               </div>
             </div>
-            <Button onClick={onProceed} className="w-full">
-              Proceed to Proposal
+            <Button onClick={onProceed} className="w-full" size="lg">
+              Proceed to Application Form
+              <ArrowRight className="size-4 ml-2" />
             </Button>
           </div>
         )}
@@ -604,37 +605,40 @@ export function InsuranceRecommendationsStep() {
         )}
       </div>
 
-      {/* Prominent Review & Proceed Section */}
-      {state.selectedInsuranceProducts.length > 0 && (
-        <div className="sticky bottom-0 bg-background border-t shadow-lg p-6 mt-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold">Selected Products ({state.selectedInsuranceProducts.length})</h3>
-                <p className="text-sm text-muted-foreground">
-                  Total Premium: <span className="font-bold text-primary text-lg">₹{totalPremium.toLocaleString("en-IN")}</span>
-                </p>
+      {/* Compact Review & Proceed Section - Hidden when panel is open */}
+      {state.selectedInsuranceProducts.length > 0 && !showSummaryPanel && (
+        <div className="sticky bottom-0 bg-background/95 backdrop-blur-sm border-t shadow-lg">
+          <div className="max-w-4xl mx-auto px-4 py-3">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-sm font-medium">
+                    {state.selectedInsuranceProducts.length} Product{state.selectedInsuranceProducts.length > 1 ? "s" : ""} Selected
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Total: <span className="font-semibold text-primary">₹{totalPremium.toLocaleString("en-IN")}</span>
+                  </p>
+                </div>
+                <Button
+                  onClick={() => setShowSummaryPanel(true)}
+                  size="sm"
+                  variant="outline"
+                >
+                  <ShoppingCart className="size-4 mr-2" />
+                  Review
+                </Button>
               </div>
               <Button
-                onClick={() => setShowSummaryPanel(true)}
+                onClick={() => {
+                  setCurrentStep(4) // Go to Proposal page
+                }}
                 size="lg"
-                variant="outline"
-                className="min-w-[150px]"
+                className="min-w-[200px]"
               >
-                <ShoppingCart className="size-4 mr-2" />
-                Review Products
+                Proceed to Application Form
+                <ArrowRight className="size-4 ml-2" />
               </Button>
             </div>
-            <Button
-              onClick={() => {
-                setCurrentStep(4) // Go to Proposal page
-              }}
-              size="lg"
-              className="w-full min-h-[50px] text-base font-semibold shadow-lg hover:shadow-xl"
-            >
-              Proceed to Application Form
-              <ArrowRight className="size-5 ml-2" />
-            </Button>
           </div>
         </div>
       )}
