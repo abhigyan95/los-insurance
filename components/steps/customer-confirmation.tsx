@@ -185,11 +185,14 @@ export function CustomerConfirmationStep() {
   }
 
   const handleSelectProductInModal = (product: InsuranceProductData) => {
-    const sumInsuredToUse = product.availableSumInsured?.[0] || product.sumInsured
     const isAlreadySelected = state.selectedInsuranceProducts.some(
       (p) => p.product.insurerId === product.insurerId
     )
-    if (!isAlreadySelected) {
+    const totalSelected = state.selectedInsuranceProducts.length
+    if (isAlreadySelected) {
+      if (totalSelected > 1) removeSelectedProduct(product.insurerId)
+    } else {
+      const sumInsuredToUse = product.availableSumInsured?.[0] || product.sumInsured
       addSelectedProduct(product, sumInsuredToUse)
     }
   }
@@ -251,7 +254,7 @@ export function CustomerConfirmationStep() {
             </div>
             <CardTitle className="text-2xl">Welcome, {state.loanApplication.fullName || "Customer"}!</CardTitle>
             <CardDescription className="text-base mt-2">
-              Please review and confirm the third-party products selected for your application
+              Please review and confirm the third-party products selected with your education loan application
             </CardDescription>
           </CardHeader>
         </Card>
@@ -538,7 +541,17 @@ export function CustomerConfirmationStep() {
               <>
                 <div className="space-y-3">
                   {state.selectedInsuranceProducts.map((item, index) => (
-                    <div key={item.product.insurerId} className="border rounded-lg p-4 bg-card hover:bg-muted/30 transition-colors">
+                    <div
+                      key={item.product.insurerId}
+                      role={totalProducts > 1 ? "button" : undefined}
+                      tabIndex={totalProducts > 1 ? 0 : undefined}
+                      onClick={totalProducts > 1 ? () => handleRemoveProduct(item.product.insurerId) : undefined}
+                      onKeyDown={totalProducts > 1 ? (e) => e.key === "Enter" && handleRemoveProduct(item.product.insurerId) : undefined}
+                      className={`border rounded-lg p-4 bg-card transition-colors ${totalProducts > 1 ? "cursor-pointer hover:bg-destructive/10 hover:border-destructive/30" : "hover:bg-muted/30"}`}
+                    >
+                      {totalProducts > 1 && (
+                        <p className="text-xs text-muted-foreground mb-2">Click to remove product</p>
+                      )}
                       <div className="flex items-start gap-4">
                         <Image
                           src={companyLogos[item.product.companyCategory] || "/placeholder-logo.png"}
@@ -593,7 +606,7 @@ export function CustomerConfirmationStep() {
                               ))}
                             </ul>
                           </div>
-                          <div className="pt-2">
+                          <div className="pt-2" onClick={(e) => e.stopPropagation()}>
                             <Button
                               variant="outline"
                               size="sm"
@@ -686,6 +699,9 @@ export function CustomerConfirmationStep() {
                             <h4 className="font-semibold text-sm">{product.productName}</h4>
                             <p className="text-xs text-muted-foreground">{product.insurerName}</p>
                             <p className="text-xs mt-1">Sum Insured: {product.sumInsured}</p>
+                            {isSelected && state.selectedInsuranceProducts.length > 1 && (
+                              <p className="text-xs text-muted-foreground mt-1">Click to deselect</p>
+                            )}
                           </div>
                           {isSelected && (
                             <CheckCircleIcon className="size-5 text-primary shrink-0" />

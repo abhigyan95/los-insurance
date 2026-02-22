@@ -159,7 +159,7 @@ export function SendCustomerLinkStep() {
             <h3 className="font-semibold text-foreground">Customer Contact Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="customerMobile">Mobile Number</Label>
+                <Label htmlFor="customerMobile">Registered Mobile Number</Label>
                 <div className="relative">
                   <PhoneIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
@@ -172,7 +172,7 @@ export function SendCustomerLinkStep() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="customerEmail">Email Address</Label>
+                <Label htmlFor="customerEmail">Registered Email Address</Label>
                 <div className="relative">
                   <MailIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input

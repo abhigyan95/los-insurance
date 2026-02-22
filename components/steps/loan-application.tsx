@@ -81,6 +81,16 @@ export function LoanApplicationStep() {
                 />
               </div>
               <div className="space-y-2">
+                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
+                <Input
+                  id="dateOfBirth"
+                  type="date"
+                  value={formData.dateOfBirth || ""}
+                  onChange={(e) => handleChange("dateOfBirth", e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
                 <Label htmlFor="pan">PAN *</Label>
                 <Input
                   id="pan"
