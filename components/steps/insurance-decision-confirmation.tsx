@@ -12,7 +12,14 @@ import { useState } from "react"
 const companyLogos: Record<string, string> = {
   "bajaj-general": "/bajaj-general-logo.png",
   "bajaj-life": "/bajaj-life-logo.avif",
-  "bajaj-finserv-health": "/bajaj-health-logo.avif",
+  "bajaj-finserv-health": "/bajaj-health-logo.png",
+  "health-assure": "/health-assure-logo.png",
+  "icici": "/icici-lombard-logo.png",
+  "max-life": "/max-life-logo.png",
+  "hdfc-life": "/hdfc-life-logo.png",
+  "care-health": "/care-health-logo.png",
+  "zuno": "/zuno-logo.png",
+  "new-life": "/placeholder-logo.png",
 }
 
 const productTypeLabels: Record<string, string> = {

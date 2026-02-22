@@ -5,6 +5,20 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { CheckCircleIcon, FileTextIcon, MailIcon, PhoneIcon, Building2Icon } from "lucide-react"
+import Image from "next/image"
+
+const companyLogos: Record<string, string> = {
+  "bajaj-finserv-health": "/bajaj-health-logo.png",
+  "health-assure": "/health-assure-logo.png",
+  "icici": "/icici-lombard-logo.png",
+  "max-life": "/max-life-logo.png",
+  "hdfc-life": "/hdfc-life-logo.png",
+  "care-health": "/care-health-logo.png",
+  "zuno": "/zuno-logo.png",
+  "bajaj-general": "/bajaj-general-logo.png",
+  "bajaj-life": "/bajaj-life-logo.avif",
+  "new-life": "/placeholder-logo.png",
+}
 
 export function SuccessStep() {
   const { state, resetJourney } = useJourney()
@@ -132,7 +146,7 @@ export function SuccessStep() {
             <CheckCircleIcon className="size-14 text-success" />
           </div>
           <CardTitle className="text-3xl text-success font-bold">
-            Congratulations! Your Insurance Plan is Submitted!
+            Congratulations! Your Third-Party Products Application form has been successfully Submitted
           </CardTitle>
           <CardDescription className="text-base mt-3">
             Your loan is disbursed and insurance will be active soon
@@ -155,12 +169,12 @@ export function SuccessStep() {
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">Loan Amount</p>
                   <p className="text-lg font-bold">
-                    ₹{Number(state.loanApplication.loanAmount).toLocaleString("en-IN")}
+                    ₹{Number(state.loanApplication.loanAmount || 0).toLocaleString("en-IN")}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">Tenure</p>
-                  <p className="text-lg font-bold">{state.loanApplication.loanTenure} Years</p>
+                  <p className="text-lg font-bold">{state.loanApplication.loanTenure ? `${state.loanApplication.loanTenure} Years` : state.loanApplication.moratorium ? `${state.loanApplication.moratorium} Years` : "—"}</p>
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">Status</p>
@@ -182,6 +196,13 @@ export function SuccessStep() {
                   {state.selectedInsuranceProducts.map((item, idx) => (
                     <div key={item.product.insurerId} className="bg-background p-3 rounded border">
                       <div className="flex items-start justify-between gap-3">
+                        <Image
+                          src={companyLogos[item.product.companyCategory] || "/placeholder-logo.png"}
+                          alt={item.product.insurerName}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 object-contain rounded shrink-0"
+                        />
                         <div className="flex-1 space-y-2">
                           <div>
                             <p className="text-xs text-muted-foreground font-medium">{item.product.productName}</p>

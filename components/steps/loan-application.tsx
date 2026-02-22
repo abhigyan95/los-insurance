@@ -102,6 +102,40 @@ export function LoanApplicationStep() {
                   required
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="gender">Gender *</Label>
+                <Select value={formData.gender || ""} onValueChange={(value) => handleChange("gender", value)}>
+                  <SelectTrigger id="gender">
+                    <SelectValue placeholder="Select gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="annualIncome">Annual Income (₹) *</Label>
+                <Input
+                  id="annualIncome"
+                  type="text"
+                  placeholder="Enter annual income"
+                  value={formData.annualIncome || ""}
+                  onChange={(e) => handleChange("annualIncome", e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="occupation">Occupation *</Label>
+                <Input
+                  id="occupation"
+                  placeholder="Enter occupation"
+                  value={formData.occupation || ""}
+                  onChange={(e) => handleChange("occupation", e.target.value)}
+                  required
+                />
+              </div>
             </div>
           </div>
 
@@ -197,6 +231,19 @@ export function LoanApplicationStep() {
                     <SelectItem value="5">5 Years</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="loanTenure">Loan Tenure (Years) *</Label>
+                <Input
+                  id="loanTenure"
+                  type="number"
+                  placeholder="e.g. 5"
+                  min={1}
+                  max={30}
+                  value={formData.loanTenure || ""}
+                  onChange={(e) => handleChange("loanTenure", e.target.value)}
+                  required
+                />
               </div>
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="loanAmount">

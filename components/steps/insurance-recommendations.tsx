@@ -26,14 +26,25 @@ const companyLabels: Record<string, string> = {
   "bajaj-general": "Bajaj General",
   "bajaj-life": "Bajaj Life",
   "bajaj-finserv-health": "Bajaj Finserv Health",
+  "health-assure": "Health Assure",
+  "icici": "ICICI Lombard",
+  "max-life": "Max Life",
+  "hdfc-life": "HDFC Life",
+  "care-health": "Care Health",
+  "zuno": "Zuno",
+  "new-life": "New Life",
 }
 
 const companyLogos: Record<string, string> = {
   "bajaj-general": "/bajaj-general-logo.png",
   "bajaj-life": "/bajaj-life-logo.avif",
-  "bajaj-finserv-health": "/bajaj-health-logo.avif",
-  "icici": "/placeholder-logo.png",
-  "max-life": "/placeholder-logo.png",
+  "bajaj-finserv-health": "/bajaj-health-logo.png",
+  "health-assure": "/health-assure-logo.png",
+  "icici": "/icici-lombard-logo.png",
+  "max-life": "/max-life-logo.png",
+  "hdfc-life": "/hdfc-life-logo.png",
+  "care-health": "/care-health-logo.png",
+  "zuno": "/zuno-logo.png",
   "new-life": "/placeholder-logo.png",
 }
 

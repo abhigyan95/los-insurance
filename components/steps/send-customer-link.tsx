@@ -9,6 +9,10 @@ import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { AlertCircleIcon, CheckCircleIcon, MailIcon, MessageSquareIcon, PhoneIcon, ArrowLeftIcon, SendIcon, CopyIcon, ExternalLinkIcon } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+
+const SAMPLE_MOBILE = "9876543210"
+const SAMPLE_EMAIL = "customer@example.com"
 
 export function SendCustomerLinkStep() {
   const { state, setCurrentStep } = useJourney()
@@ -17,8 +21,8 @@ export function SendCustomerLinkStep() {
   const [sendViaWhatsApp, setSendViaWhatsApp] = useState(true)
   const [isSending, setIsSending] = useState(false)
   const [linkSent, setLinkSent] = useState(false)
-  const [customerMobile, setCustomerMobile] = useState(state.loanApplication.mobile || "")
-  const [customerEmail, setCustomerEmail] = useState(state.loanApplication.email || "")
+  const [customerMobile, setCustomerMobile] = useState(state.loanApplication.mobile || SAMPLE_MOBILE)
+  const [customerEmail, setCustomerEmail] = useState(state.loanApplication.email || SAMPLE_EMAIL)
 
   // Generate a dummy customer link
   const customerLink = `https://avanse-portal.com/customer/confirm/${state.losId}`
@@ -65,9 +69,43 @@ export function SendCustomerLinkStep() {
         </CardHeader>
 
         <CardContent className="space-y-6">
+          {/* Products Table (Avanse LOS style) */}
+          {state.selectedInsuranceProducts && state.selectedInsuranceProducts.length > 0 && (
+            <div className="rounded-lg border overflow-hidden">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Product Name</TableHead>
+                    <TableHead>Product Code</TableHead>
+                    <TableHead>Info Captured</TableHead>
+                    <TableHead>Premium</TableHead>
+                    <TableHead>VAS Reference</TableHead>
+                    <TableHead>Added On</TableHead>
+                    <TableHead>Added By</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {state.selectedInsuranceProducts.map((item, index) => (
+                    <TableRow key={item.product.insurerId}>
+                      <TableCell className="font-medium">{item.product.productName}</TableCell>
+                      <TableCell>{item.product.chargeCode}</TableCell>
+                      <TableCell>Completed</TableCell>
+                      <TableCell>₹{item.calculatedPremium.toLocaleString("en-IN")}</TableCell>
+                      <TableCell>{item.product.chargeCode}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {new Date().toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })} {new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true })}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">Agent</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+
           {/* Application Summary */}
           <div className="p-4 rounded-lg bg-muted/30 border">
-            <h3 className="font-semibold text-foreground mb-3">Application Summary</h3>
+            <h3 className="font-semibold text-foreground mb-3">Application Details</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
               <div>
                 <p className="text-muted-foreground text-xs">Application ID</p>

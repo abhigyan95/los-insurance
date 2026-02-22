@@ -1,9 +1,21 @@
+export type CompanyCategory =
+  | "bajaj-general"
+  | "bajaj-life"
+  | "bajaj-finserv-health"
+  | "health-assure"
+  | "icici"
+  | "max-life"
+  | "hdfc-life"
+  | "care-health"
+  | "zuno"
+  | "new-life"
+
 export interface InsuranceProductData {
   insurerId: string
   productName: string
   insurerName: string
   productType: "vas" | "travel" | "creditlife" | "health"
-  companyCategory: "bajaj-general" | "bajaj-life" | "bajaj-finserv-health" | "icici" | "max-life" | "new-life"
+  companyCategory: CompanyCategory
   sumInsured: string
   availableSumInsured?: string[]
   productAmount: string
@@ -16,7 +28,7 @@ export interface InsuranceProductData {
 }
 
 export const insuranceProducts: InsuranceProductData[] = [
-  // VAS - Health Insurance Products
+  // 1. Bajaj Swasthyacare Supreme
   {
     insurerId: "bajaj-vas-swasthyacare",
     productName: "Bajaj Swasthyacare Supreme",
@@ -25,29 +37,35 @@ export const insuranceProducts: InsuranceProductData[] = [
     companyCategory: "bajaj-finserv-health",
     chargeCode: "BJ00501",
     sumInsured: "₹30,00,000",
-    productAmount: "₹45,500",
+    availableSumInsured: ["₹30,00,000"],
+    productAmount: "₹46,784",
+    annualPremium: "₹46,784 (Student) / ₹37,100 (Parent)",
+    productTenure: "Student – 5 Yr / Parent – 5 Yr",
     keyBenefits: [
-      "Health Benefits worth Product amounts",
+      "Complimentary Credit Life insurance cover of ₹30,00,000 sum assured",
+      "Wellness benefits worth – ₹1,23,884 Which Includes Below Benefits-",
       "Annual LAB Benefits",
       "Annual OPD benefits",
       "Hospitalization Linked OPD benefits",
       "Free annual health check up",
-      "Free Annual Health counseling",
-      "Tele & Distant Consultations",
-      "10% Network Discounts",
     ],
   },
+  // 2. Health Assure – Sampurna Arogya
   {
     insurerId: "bajaj-vas-health-assure",
-    productName: "Health Assure – Sampurna Arogya Suraksha",
-    insurerName: "Bajaj Finserv Health",
+    productName: "Health Assure – Sampurna Arogya",
+    insurerName: "Health Assure",
     productType: "vas",
-    companyCategory: "bajaj-finserv-health",
+    companyCategory: "health-assure",
     chargeCode: "BJ00502",
     sumInsured: "₹30,00,000",
-    productAmount: "₹45,000",
+    availableSumInsured: ["₹30,00,000"],
+    productAmount: "₹44,499",
+    annualPremium: "₹44,499 (Student) / ₹31,582 (Parent)",
+    productTenure: "Student – 5 Yr / Parent – 5 Yr",
     keyBenefits: [
-      "Health Benefits worth Product amounts",
+      "Complimentary Credit Life insurance cover of ₹30,00,000 sum assured",
+      "Wellness benefits worth – ₹76,081 Which Includes Below Benefits-",
       "Annual LAB Benefits",
       "Annual OPD benefits",
       "Free annual health check",
@@ -55,46 +73,7 @@ export const insuranceProducts: InsuranceProductData[] = [
       "Tele & Distant consultations",
     ],
   },
-
-  // Travel Insurance Products
-  {
-    insurerId: "zuno-travel-policy",
-    productName: "ZUNO – Overseas Travel Policy",
-    insurerName: "Bajaj Allianz",
-    productType: "travel",
-    companyCategory: "bajaj-general",
-    chargeCode: "BJ00601",
-    sumInsured: "USD 1,00,000",
-    productAmount: "₹ 49,360",
-    cover: "Worldwide",
-    productTenure: "2Yr",
-    keyBenefits: [
-      "Accident & sickness medical expense benefit (A&S ME Benefit)",
-      "OPD Cover (Included under A&S ME Benefit)",
-      "Emergency medical evacuation",
-      "Pre-existing disease coverage in life-threatening condition",
-    ],
-  },
-  {
-    insurerId: "icici-travel-policy",
-    productName: "ICICI Lombard – Overseas Travel Policy",
-    insurerName: "ICICI Lombard",
-    productType: "travel",
-    companyCategory: "icici",
-    chargeCode: "BJ00602",
-    sumInsured: "USD 1,00,000",
-    productAmount: "₹ 50,010",
-    cover: "Worldwide",
-    productTenure: "2Yr",
-    keyBenefits: [
-      "Accident & sickness medical expense benefit (A&S ME Benefit)",
-      "OPD Cover (Included under A&S ME Benefit)",
-      "Emergency medical evacuation",
-      "Pre-existing disease coverage in life-threatening condition",
-    ],
-  },
-
-  // Credit Life / MRTA Insurance
+  // 3. Max Life Insurance
   {
     insurerId: "max-life-insurance",
     productName: "Max Life Insurance",
@@ -103,33 +82,26 @@ export const insuranceProducts: InsuranceProductData[] = [
     companyCategory: "max-life",
     chargeCode: "BJ00701",
     sumInsured: "₹30,00,000",
-    productAmount: "₹40,000",
-    keyBenefits: [
-      "Health Benefits worth Product amounts",
-      "Annual LAB Benefits",
-      "Annual OPD benefits",
-      "Hospitalization Linked OPD benefits",
-      "Free annual health check up",
-      "Free Annual Health counseling",
-      "Teleconsultations",
-    ],
+    availableSumInsured: ["₹30,00,000"],
+    productAmount: "₹33,170",
+    productTenure: "Applicant – 5 Yr",
+    keyBenefits: ["Credit Life Insurance Cover ₹30,00,000 sum assured"],
   },
+  // 4. HDFC Life Insurance
   {
-    insurerId: "new-life-insurer",
-    productName: "New Life Insurer",
-    insurerName: "New Life Insurer",
+    insurerId: "hdfc-life-insurance",
+    productName: "HDFC Life Insurance",
+    insurerName: "HDFC Life",
     productType: "creditlife",
-    companyCategory: "new-life",
+    companyCategory: "hdfc-life",
     chargeCode: "BJ00702",
-    sumInsured: "₹5,00,000",
-    productAmount: "₹16,048",
-    keyBenefits: [
-      "Health Benefits worth Product amounts",
-      "Free annual health check",
-    ],
+    sumInsured: "₹30,00,000",
+    availableSumInsured: ["₹30,00,000"],
+    productAmount: "₹32,817",
+    productTenure: "Applicant – 5 Yr",
+    keyBenefits: ["Credit Life Insurance Cover ₹30,00,000 sum assured"],
   },
-
-  // Health Insurance Products
+  // 5. ICICI Lombard Health Shield 360
   {
     insurerId: "icici-health-shield",
     productName: "ICICI Lombard Health Shield 360",
@@ -138,6 +110,7 @@ export const insuranceProducts: InsuranceProductData[] = [
     companyCategory: "icici",
     chargeCode: "BJ00801",
     sumInsured: "₹5,00,000",
+    availableSumInsured: ["₹5,00,000"],
     productAmount: "₹16,048",
     productTenure: "1 Yr",
     keyBenefits: [
@@ -150,15 +123,17 @@ export const insuranceProducts: InsuranceProductData[] = [
       "Ambulance Cover",
     ],
   },
+  // 6. Zuno – Group Health Insurance
   {
-    insurerId: "care-group-care",
-    productName: "Care – Group Care 360",
-    insurerName: "Care Health Insurance",
+    insurerId: "zuno-group-health",
+    productName: "Zuno – Group Health Insurance",
+    insurerName: "Zuno",
     productType: "health",
-    companyCategory: "icici",
-    chargeCode: "BJ00802",
+    companyCategory: "zuno",
+    chargeCode: "BJ00803",
     sumInsured: "₹5,00,000",
-    productAmount: "₹16,048",
+    availableSumInsured: ["₹5,00,000"],
+    productAmount: "₹12,500",
     productTenure: "1 Yr",
     keyBenefits: [
       "Hospitalization Expenses",
@@ -168,6 +143,93 @@ export const insuranceProducts: InsuranceProductData[] = [
       "Unlimited Reset Benefit",
       "Dependent Accommodation",
       "Ambulance Cover",
+    ],
+  },
+  // 7. ZUNO – Overseas Travel Policy
+  {
+    insurerId: "zuno-travel-policy",
+    productName: "ZUNO – Overseas Travel Policy",
+    insurerName: "Zuno",
+    productType: "travel",
+    companyCategory: "zuno",
+    chargeCode: "BJ00601",
+    sumInsured: "USD 1,00,000",
+    availableSumInsured: ["USD 1,00,000"],
+    productAmount: "₹48,392",
+    cover: "World Wide",
+    productTenure: "2 Yr",
+    keyBenefits: [
+      "Accident & sickness medical expense benefit (A&S ME Benefit)",
+      "OPD Cover (Included under A&S ME Benefit)",
+      "Emergency medical evacuation",
+      "Pre-existing disease coverage in life threatening condition",
+      "Sickness & dental relief",
+      "Repatriation of remains",
+      "Accidental death",
+    ],
+  },
+  // 8. ICICI Lombard - Overseas Travel Policy
+  {
+    insurerId: "icici-travel-policy",
+    productName: "ICICI Lombard - Overseas Travel Policy",
+    insurerName: "ICICI Lombard",
+    productType: "travel",
+    companyCategory: "icici",
+    chargeCode: "BJ00602",
+    sumInsured: "USD 1,00,000",
+    availableSumInsured: ["USD 1,00,000"],
+    productAmount: "₹49,360",
+    cover: "World Wide",
+    productTenure: "2 Yr",
+    keyBenefits: [
+      "Accident & sickness medical expense benefit (A&S ME Benefit)",
+      "OPD Cover (Included under A&S ME Benefit)",
+      "Emergency medical evacuation",
+      "Pre-existing disease coverage in life threatening condition",
+      "Sickness & dental relief",
+      "Repatriation of remains",
+      "Accidental death",
+    ],
+  },
+  // 9. Care Health – Group Care 360
+  {
+    insurerId: "care-group-care-360",
+    productName: "Care Health – Group Care 360",
+    insurerName: "Care Health Insurance",
+    productType: "health",
+    companyCategory: "care-health",
+    chargeCode: "BJ00804",
+    sumInsured: "USD 1,00,000",
+    availableSumInsured: ["USD 1,00,000"],
+    productAmount: "₹45,440",
+    productTenure: "1 Yr",
+    keyBenefits: [
+      "International Student – In Patient Care",
+      "Pre Existing Disease Cover in Life threatening",
+      "Outpatient Care",
+      "Loss of passport",
+      "Accidental Death",
+    ],
+  },
+  // 10. Care Health – Group Health Insurance
+  {
+    insurerId: "care-group-health",
+    productName: "Care Health – Group Health Insurance",
+    insurerName: "Care Health Insurance",
+    productType: "health",
+    companyCategory: "care-health",
+    chargeCode: "BJ00802",
+    sumInsured: "₹5,00,000",
+    availableSumInsured: ["₹5,00,000"],
+    productAmount: "₹7,808",
+    productTenure: "1 Yr",
+    keyBenefits: [
+      "Hospitalization Expenses",
+      "Day Care Procedure",
+      "Pre & Post Hospitalization",
+      "In Patient AYUSH Hospitalization",
+      "Unlimited Reset Benefit",
+      "Dependent Accommodation",
     ],
   },
 ]

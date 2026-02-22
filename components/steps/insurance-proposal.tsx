@@ -10,6 +10,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { AlertCircleIcon, LockIcon, CheckCircleIcon, ArrowLeftIcon } from "lucide-react"
+import Image from "next/image"
+
+const companyLogos: Record<string, string> = {
+  "bajaj-finserv-health": "/bajaj-health-logo.png",
+  "health-assure": "/health-assure-logo.png",
+  "icici": "/icici-lombard-logo.png",
+  "max-life": "/max-life-logo.png",
+  "hdfc-life": "/hdfc-life-logo.png",
+  "care-health": "/care-health-logo.png",
+  "zuno": "/zuno-logo.png",
+  "bajaj-general": "/bajaj-general-logo.png",
+  "bajaj-life": "/bajaj-life-logo.avif",
+  "new-life": "/placeholder-logo.png",
+}
 
 const medicalConditions = [
   "Diabetes",
@@ -59,7 +73,12 @@ export function InsuranceProposalStep() {
     mobile: state.loanApplication.mobile || "",
     email: state.loanApplication.email || "",
     address: `${state.loanApplication.currentAddress || ""}, ${state.loanApplication.city || ""}, ${state.loanApplication.state || ""} - ${state.loanApplication.pincode || ""}`,
+    gender: state.loanApplication.gender || "",
+    annualIncome: state.loanApplication.annualIncome || "",
+    occupation: state.loanApplication.occupation || "",
   }
+
+  const hasTravelProduct = state.selectedInsuranceProducts?.some((p) => p.product.productType === "travel")
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -88,7 +107,14 @@ export function InsuranceProposalStep() {
                 {state.selectedInsuranceProducts.map((item, index) => (
                   <div key={item.product.insurerId} className="p-4 rounded-lg border bg-muted/30">
                     <div className="flex items-start justify-between gap-3 mb-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
+                        <Image
+                          src={companyLogos[item.product.companyCategory] || "/placeholder-logo.png"}
+                          alt={item.product.insurerName}
+                          width={40}
+                          height={40}
+                          className="h-10 w-10 object-contain rounded"
+                        />
                         <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground font-semibold text-sm">
                           {index + 1}
                         </div>
@@ -98,11 +124,17 @@ export function InsuranceProposalStep() {
                         </div>
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm bg-background p-3 rounded">
+                    <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm bg-background p-3 rounded">
                       <div>
                         <span className="text-muted-foreground text-xs">Sum Insured</span>
                         <p className="font-semibold text-foreground">{item.selectedSumInsured}</p>
                       </div>
+                      {item.product.productTenure && (
+                        <div>
+                          <span className="text-muted-foreground text-xs">Tenure</span>
+                          <p className="font-semibold text-foreground">{item.product.productTenure}</p>
+                        </div>
+                      )}
                       <div>
                         <span className="text-muted-foreground text-xs">Product Amount</span>
                         <p className="font-semibold text-primary">{item.product.productAmount}</p>
@@ -182,6 +214,33 @@ export function InsuranceProposalStep() {
                 </Label>
                 <Input id="prefilled-address" value={prefilledFields.address} className="bg-accent/50" readOnly />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="prefilled-gender" className="flex items-center gap-2">
+                  Gender{" "}
+                  <span className="text-xs text-success flex items-center gap-1">
+                    <CheckCircleIcon className="size-3" /> Auto-filled
+                  </span>
+                </Label>
+                <Input id="prefilled-gender" value={prefilledFields.gender ? String(prefilledFields.gender).charAt(0).toUpperCase() + String(prefilledFields.gender).slice(1) : ""} className="bg-accent/50" readOnly />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prefilled-annualIncome" className="flex items-center gap-2">
+                  Annual Income{" "}
+                  <span className="text-xs text-success flex items-center gap-1">
+                    <CheckCircleIcon className="size-3" /> Auto-filled
+                  </span>
+                </Label>
+                <Input id="prefilled-annualIncome" value={prefilledFields.annualIncome ? `₹${prefilledFields.annualIncome}` : ""} className="bg-accent/50" readOnly />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="prefilled-occupation" className="flex items-center gap-2">
+                  Occupation{" "}
+                  <span className="text-xs text-success flex items-center gap-1">
+                    <CheckCircleIcon className="size-3" /> Auto-filled
+                  </span>
+                </Label>
+                <Input id="prefilled-occupation" value={prefilledFields.occupation || ""} className="bg-accent/50" readOnly />
+              </div>
             </div>
           </div>
 
@@ -193,25 +252,22 @@ export function InsuranceProposalStep() {
             <p className="text-sm text-muted-foreground">Please provide the following information to complete your application</p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender *</Label>
-                <Select value={proposalData.gender || ""} onValueChange={(value) => handleChange("gender", value)}>
-                  <SelectTrigger id="gender">
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
                 <Label htmlFor="nomineeName">Nominee Name *</Label>
                 <Input
                   id="nomineeName"
                   placeholder="Enter nominee full name"
                   value={proposalData.nomineeName || ""}
                   onChange={(e) => handleChange("nomineeName", e.target.value)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="nomineeDob">Nominee DOB *</Label>
+                <Input
+                  id="nomineeDob"
+                  type="date"
+                  value={proposalData.nomineeDob || ""}
+                  onChange={(e) => handleChange("nomineeDob", e.target.value)}
                   required
                 />
               </div>
@@ -233,16 +289,17 @@ export function InsuranceProposalStep() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2 md:col-span-1">
-                <Label htmlFor="occupation">Occupation *</Label>
-                <Input
-                  id="occupation"
-                  placeholder="Enter occupation"
-                  value={proposalData.occupation || ""}
-                  onChange={(e) => handleChange("occupation", e.target.value)}
-                  required
-                />
-              </div>
+              {hasTravelProduct && (
+                <div className="space-y-2">
+                  <Label htmlFor="travelDate">Travel Date (for Travel Insurance) *</Label>
+                  <Input
+                    id="travelDate"
+                    type="date"
+                    value={proposalData.travelDate || ""}
+                    onChange={(e) => handleChange("travelDate", e.target.value)}
+                  />
+                </div>
+              )}
               <div className="space-y-2">
                 <Label htmlFor="height">Height (cm) *</Label>
                 <Input
@@ -282,10 +339,7 @@ export function InsuranceProposalStep() {
                   className="mt-1"
                 />
                 <Label htmlFor="hasPreexistingDiseases" className="cursor-pointer flex-1">
-                  <p className="font-medium mb-1">Do you have any pre-existing medical conditions?</p>
-                  <p className="text-sm text-muted-foreground">
-                    Please select if you have been diagnosed with any medical conditions
-                  </p>
+                  <p className="font-medium">Do you have any pre-existing medical conditions?</p>
                 </Label>
               </div>
 

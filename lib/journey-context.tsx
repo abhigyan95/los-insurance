@@ -22,6 +22,9 @@ export interface LoanApplicationData {
   propertyType?: string
   employmentType?: string
   monthlyIncome?: string
+  gender?: string
+  annualIncome?: string
+  occupation?: string
 }
 
 export interface InsuranceProductData {
@@ -29,7 +32,7 @@ export interface InsuranceProductData {
   productName: string
   insurerName: string
   productType: "vas" | "travel" | "creditlife" | "health"
-  companyCategory: "bajaj-general" | "bajaj-life" | "bajaj-finserv-health" | "icici" | "max-life" | "new-life"
+  companyCategory: "bajaj-general" | "bajaj-life" | "bajaj-finserv-health" | "health-assure" | "icici" | "max-life" | "hdfc-life" | "care-health" | "zuno" | "new-life"
   sumInsured: string
   availableSumInsured?: string[]
   productAmount: string

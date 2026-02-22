@@ -17,6 +17,19 @@ import Image from "next/image"
 import { insuranceProducts } from "@/lib/insurance-data"
 import type { InsuranceProductData } from "@/lib/journey-context"
 
+const companyLogos: Record<string, string> = {
+  "bajaj-finserv-health": "/bajaj-health-logo.png",
+  "health-assure": "/health-assure-logo.png",
+  "icici": "/icici-lombard-logo.png",
+  "max-life": "/max-life-logo.png",
+  "hdfc-life": "/hdfc-life-logo.png",
+  "care-health": "/care-health-logo.png",
+  "zuno": "/zuno-logo.png",
+  "bajaj-general": "/bajaj-general-logo.png",
+  "bajaj-life": "/bajaj-life-logo.avif",
+  "new-life": "/placeholder-logo.png",
+}
+
 const medicalConditions = [
   "Diabetes",
   "Hypertension",
@@ -143,6 +156,9 @@ export function CustomerConfirmationStep() {
   const { state, setCurrentStep, addSelectedProduct, removeSelectedProduct, updateProductConfig, updateInsuranceProposal } = useJourney()
   const [agreedToTerms, setAgreedToTerms] = useState(false)
   const [confirmedAccuracy, setConfirmedAccuracy] = useState(false)
+  const [consentHealthy, setConsentHealthy] = useState(false)
+  const [consentShareDetails, setConsentShareDetails] = useState(false)
+  const [consentDeductPremium, setConsentDeductPremium] = useState(false)
   const [showEditProductsModal, setShowEditProductsModal] = useState(false)
   const [showAllProducts, setShowAllProducts] = useState(false)
   const [isEditingDetails, setIsEditingDetails] = useState(false)
@@ -150,10 +166,12 @@ export function CustomerConfirmationStep() {
   const [editedDetails, setEditedDetails] = useState(state.insuranceProposal)
 
   const handleConfirm = () => {
-    if (agreedToTerms && confirmedAccuracy) {
+    if (agreedToTerms && confirmedAccuracy && consentHealthy && consentShareDetails && consentDeductPremium) {
       setCurrentStep(7) // Go to OTP verification (customer side)
     }
   }
+
+  const canConfirm = agreedToTerms && confirmedAccuracy && consentHealthy && consentShareDetails && consentDeductPremium
 
   const handleEditProduct = (item: typeof state.selectedInsuranceProducts[0]) => {
     setEditingProduct(item.product)
@@ -231,9 +249,9 @@ export function CustomerConfirmationStep() {
             <div className="flex justify-center mb-4">
               <UserIcon className="size-12 text-primary" />
             </div>
-            <CardTitle className="text-2xl">Welcome, {state.loanApplication.fullName}!</CardTitle>
+            <CardTitle className="text-2xl">Welcome, {state.loanApplication.fullName || "Customer"}!</CardTitle>
             <CardDescription className="text-base mt-2">
-              Please review and confirm the third-party products selected for your education loan application
+              Please review and confirm the third-party products selected for your application
             </CardDescription>
           </CardHeader>
         </Card>
@@ -253,10 +271,16 @@ export function CustomerConfirmationStep() {
         {/* Application Details */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileTextIcon className="size-5" />
-              Application Details
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileTextIcon className="size-5" />
+                Application Details
+              </CardTitle>
+              <Button variant="outline" size="sm" onClick={() => setCurrentStep(1)} className="gap-2">
+                <Edit2 className="size-4" />
+                Edit Application details
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-muted/30">
@@ -291,7 +315,7 @@ export function CustomerConfirmationStep() {
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Loan Amount</p>
                 <p className="font-bold text-primary text-lg">
-                  ₹{Number(state.loanApplication.loanAmount).toLocaleString("en-IN")}
+                  ₹{Number(state.loanApplication.loanAmount || 0).toLocaleString("en-IN")}
                 </p>
               </div>
             </div>
@@ -516,6 +540,13 @@ export function CustomerConfirmationStep() {
                   {state.selectedInsuranceProducts.map((item, index) => (
                     <div key={item.product.insurerId} className="border rounded-lg p-4 bg-card hover:bg-muted/30 transition-colors">
                       <div className="flex items-start gap-4">
+                        <Image
+                          src={companyLogos[item.product.companyCategory] || "/placeholder-logo.png"}
+                          alt={item.product.insurerName}
+                          width={48}
+                          height={48}
+                          className="h-12 w-12 object-contain rounded shrink-0"
+                        />
                         <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-bold">
                           {index + 1}
                         </div>
@@ -525,11 +556,17 @@ export function CustomerConfirmationStep() {
                             <p className="text-sm text-muted-foreground">{item.product.insurerName}</p>
                           </div>
 
-                          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-3 text-sm">
                             <div className="p-2 rounded bg-muted/50">
                               <p className="text-xs text-muted-foreground">Sum Insured</p>
                               <p className="font-semibold text-foreground">{item.selectedSumInsured}</p>
                             </div>
+                            {item.product.productTenure && (
+                              <div className="p-2 rounded bg-muted/50">
+                                <p className="text-xs text-muted-foreground">Tenure</p>
+                                <p className="font-semibold text-foreground">{item.product.productTenure}</p>
+                              </div>
+                            )}
                             <div className="p-2 rounded bg-muted/50">
                               <p className="text-xs text-muted-foreground">Product Amount</p>
                               <p className="font-semibold text-foreground">{item.product.productAmount}</p>
@@ -723,6 +760,42 @@ export function CustomerConfirmationStep() {
                 </p>
               </Label>
             </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border hover:bg-muted/30 transition-colors">
+              <Checkbox
+                id="consent-healthy"
+                checked={consentHealthy}
+                onCheckedChange={(checked) => setConsentHealthy(checked as boolean)}
+                className="mt-1"
+              />
+              <Label htmlFor="consent-healthy" className="cursor-pointer flex-1">
+                <p className="font-medium">I confirm that I am healthy and do not have any pre-existing disease</p>
+              </Label>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border hover:bg-muted/30 transition-colors">
+              <Checkbox
+                id="consent-share"
+                checked={consentShareDetails}
+                onCheckedChange={(checked) => setConsentShareDetails(checked as boolean)}
+                className="mt-1"
+              />
+              <Label htmlFor="consent-share" className="cursor-pointer flex-1">
+                <p className="font-medium">I allow Avanse to share my personal details to third party for issuing these additional products</p>
+              </Label>
+            </div>
+
+            <div className="flex items-start gap-3 p-4 rounded-lg border hover:bg-muted/30 transition-colors">
+              <Checkbox
+                id="consent-deduct"
+                checked={consentDeductPremium}
+                onCheckedChange={(checked) => setConsentDeductPremium(checked as boolean)}
+                className="mt-1"
+              />
+              <Label htmlFor="consent-deduct" className="cursor-pointer flex-1">
+                <p className="font-medium">I allow Avanse to deduct the premium of these products from my funded amount</p>
+              </Label>
+            </div>
           </CardContent>
         </Card>
 
@@ -731,7 +804,7 @@ export function CustomerConfirmationStep() {
           <Button
             onClick={handleConfirm}
             size="lg"
-            disabled={!agreedToTerms || !confirmedAccuracy}
+            disabled={!canConfirm}
             className="min-w-[300px] text-base gap-2"
           >
             <CheckCircleIcon className="size-5" />
@@ -741,9 +814,7 @@ export function CustomerConfirmationStep() {
 
         {/* Footer Note */}
         <div className="mt-6 text-center text-xs text-muted-foreground">
-          <p>
-            Next step: You will receive an OTP for identity verification before final submission.
-          </p>
+          <p>Next step: You will receive an OTP for identity verification before final submission.</p>
         </div>
       </main>
     </div>
