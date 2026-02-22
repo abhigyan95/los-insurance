@@ -45,8 +45,7 @@ export function JourneyFlow() {
           <div className="flex items-center gap-6">
             <Image src="/avanse-logo.png" alt="Avanse Logo" width={120} height={60} className="h-12 w-auto" />
             <div>
-              <h1 className="text-2xl font-bold text-foreground">Loan & Insurance Portal</h1>
-              <p className="text-sm text-muted-foreground">Application Management System</p>
+              <h1 className="text-2xl font-bold text-foreground">Third Party Product Portal</h1>
             </div>
           </div>
         </div>
