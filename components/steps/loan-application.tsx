@@ -11,7 +11,7 @@ import { Building2Icon, UserIcon, MapPinIcon, IndianRupeeIcon } from "lucide-rea
 
 export function LoanApplicationStep() {
   const { state, updateLoanApplication, generateLosId, setCurrentStep } = useJourney()
-  const [formData, setFormData] = useState(state.loanApplication)
+  const [formData, setFormData] = useState(() => ({ ...state.loanApplication }))
 
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }))

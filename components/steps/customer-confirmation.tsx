@@ -755,10 +755,8 @@ export function CustomerConfirmationStep() {
                 className="mt-1"
               />
               <Label htmlFor="accuracy" className="cursor-pointer flex-1">
-                <p className="font-medium mb-1">I confirm the accuracy of all information provided</p>
-                <p className="text-sm text-muted-foreground">
-                  I have reviewed all application details and product information, and confirm that the information is accurate and complete.
-                </p>
+                <p className="font-medium">I confirm the accuracy of all information provided</p>
+                <p className="text-sm text-muted-foreground mt-1">I have reviewed all application details and product information.</p>
               </Label>
             </div>
 
@@ -770,10 +768,8 @@ export function CustomerConfirmationStep() {
                 className="mt-1"
               />
               <Label htmlFor="terms" className="cursor-pointer flex-1">
-                <p className="font-medium mb-1">I agree to the Terms & Conditions</p>
-                <p className="text-sm text-muted-foreground">
-                  I agree to the terms and conditions of the selected products and authorize the processing of my application.
-                </p>
+                <p className="font-medium">I agree to the Terms & Conditions</p>
+                <p className="text-sm text-muted-foreground mt-1">I authorize the processing of my application for the selected products.</p>
               </Label>
             </div>
 
@@ -785,7 +781,11 @@ export function CustomerConfirmationStep() {
                 className="mt-1"
               />
               <Label htmlFor="consent-healthy" className="cursor-pointer flex-1">
-                <p className="font-medium">I confirm that I am healthy and do not have any pre-existing disease</p>
+                <p className="font-medium">
+                  {state.insuranceProposal.hasPreexistingDiseases
+                    ? "I confirm that I have declared my pre-existing disease(s) and the details provided are accurate"
+                    : "I confirm that I am healthy and do not have any pre-existing disease"}
+                </p>
               </Label>
             </div>
 

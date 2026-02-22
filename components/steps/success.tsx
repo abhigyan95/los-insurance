@@ -146,10 +146,10 @@ export function SuccessStep() {
             <CheckCircleIcon className="size-14 text-success" />
           </div>
           <CardTitle className="text-3xl text-success font-bold">
-            Congratulations! Your Third-Party Products Application form has been successfully Submitted
+            Congratulations!
           </CardTitle>
           <CardDescription className="text-base mt-3">
-            Your loan is disbursed and insurance will be active soon
+            Your Third-Party Products Application form has been successfully submitted.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -178,19 +178,19 @@ export function SuccessStep() {
                 </div>
                 <div>
                   <p className="text-xs text-muted-foreground font-medium">Status</p>
-                  <p className="text-lg font-bold text-success">Disbursed</p>
+                  <p className="text-lg font-bold text-success">Under Review</p>
                 </div>
               </div>
             </div>
 
             <Separator />
 
-            {/* Insurance Policies Section */}
+            {/* Third Party Products Section */}
             {state.selectedInsuranceProducts && state.selectedInsuranceProducts.length > 0 && (
               <div>
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
                   <FileTextIcon className="size-5" />
-                  Insurance Policies
+                  Third Party Products
                 </h3>
                 <div className="space-y-3">
                   {state.selectedInsuranceProducts.map((item, idx) => (

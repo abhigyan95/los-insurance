@@ -85,13 +85,47 @@ interface JourneyContextType {
 
 const JourneyContext = createContext<JourneyContextType | undefined>(undefined)
 
+// Demo pre-fill: editable dummy data so clients don't re-enter on every test. Loan 30,00,000, tenure 12 years, no medical conditions.
+const defaultLoanApplication: Partial<LoanApplicationData> = {
+  fullName: "Rahul Sharma",
+  parentName: "Suresh Sharma",
+  dateOfBirth: "1998-05-15",
+  mobile: "9876543210",
+  email: "rahul.sharma@example.com",
+  pan: "ABCDE1234F",
+  aadhaar: "123456789012",
+  currentAddress: "42, Green Valley Apartments, MG Road",
+  city: "Bangalore",
+  state: "Karnataka",
+  pincode: "560001",
+  loanAmount: "3000000",
+  loanTenure: "12",
+  educationType: "ug",
+  moratorium: "12",
+  gender: "male",
+  annualIncome: "800000",
+  occupation: "Student",
+}
+
+const defaultInsuranceProposal: Partial<InsuranceProposalData> = {
+  gender: "male",
+  nomineeName: "Priya Sharma",
+  nomineeRelationship: "parent",
+  nomineeDob: "1970-08-20",
+  occupation: "Student",
+  height: "170",
+  weight: "65",
+  hasPreexistingDiseases: false,
+  selectedMedicalConditions: [],
+}
+
 const initialState: JourneyState = {
   losId: null,
-  loanApplication: {},
+  loanApplication: defaultLoanApplication,
   wantsInsurance: null,
   selectedInsurance: null,
   selectedInsuranceProducts: [],
-  insuranceProposal: {},
+  insuranceProposal: defaultInsuranceProposal,
   otpVerified: false,
   policyNumber: null,
   currentStep: 1,
@@ -200,7 +234,11 @@ export function JourneyProvider({ children }: { children: ReactNode }) {
   }
 
   const resetJourney = () => {
-    setState(initialState)
+    setState({
+      ...initialState,
+      loanApplication: { ...defaultLoanApplication },
+      insuranceProposal: { ...defaultInsuranceProposal },
+    })
   }
 
   return (

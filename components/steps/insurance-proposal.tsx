@@ -41,11 +41,11 @@ const medicalConditions = [
 
 export function InsuranceProposalStep() {
   const { state, updateInsuranceProposal, setCurrentStep } = useJourney()
-  const [proposalData, setProposalData] = useState({
+  const [proposalData, setProposalData] = useState(() => ({
     ...state.insuranceProposal,
-    hasPreexistingDiseases: state.insuranceProposal.hasPreexistingDiseases || false,
-    selectedMedicalConditions: state.insuranceProposal.selectedMedicalConditions || [],
-  })
+    hasPreexistingDiseases: state.insuranceProposal.hasPreexistingDiseases ?? false,
+    selectedMedicalConditions: state.insuranceProposal.selectedMedicalConditions ?? [],
+  }))
 
   const handleChange = (field: string, value: string | boolean) => {
     setProposalData((prev) => ({ ...prev, [field]: value }))
