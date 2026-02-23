@@ -461,10 +461,10 @@ export function InsuranceRecommendationsStep() {
       <p className="text-sm text-muted-foreground">You can select only one product per category (VAS, Travel, Credit Life, Health).</p>
 
       <div className="space-y-8">
-        {categoryOrder.every((c) => !productsByCategory[c]?.length) ? (
+        {(categoryOrder.every((c) => !productsByCategory[c]?.length) ? (
           <div className="text-center py-12 text-muted-foreground">No products found matching your search.</div>
         ) : (
-        categoryOrder.map((category) => {
+          categoryOrder.map((category) => {
           const products = productsByCategory[category]
           if (!products?.length) return null
           return (
@@ -572,13 +572,13 @@ export function InsuranceRecommendationsStep() {
                   </div>
                 </CardContent>
               </Card>
-            )
+                  )
                 })}
               </div>
             </div>
           )
-        })}
-        )}
+        })
+        ))}
       </div>
 
       {/* Compact Review & Proceed Section - Hidden when panel is open */}
