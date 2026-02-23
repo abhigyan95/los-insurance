@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { AlertCircleIcon, CheckCircleIcon, ShieldCheckIcon, UserIcon, FileTextIcon, PackageIcon, Edit2, ChevronDown, X } from "lucide-react"
@@ -471,17 +472,21 @@ export function CustomerConfirmationStep() {
                 <h4 className="font-semibold text-sm mb-3">Medical Information</h4>
                 {isEditingDetails ? (
                   <div className="space-y-3">
-                    <div className="flex items-start gap-3 p-3 rounded-lg border">
-                      <Checkbox
-                        id="edit-hasPreexistingDiseases"
-                        checked={editedDetails.hasPreexistingDiseases || false}
-                        onCheckedChange={(checked) => handleDetailChange("hasPreexistingDiseases", checked as boolean)}
-                        className="mt-1"
-                      />
-                      <Label htmlFor="edit-hasPreexistingDiseases" className="cursor-pointer flex-1 text-sm">
-                        Do you have any pre-existing medical conditions?
-                      </Label>
-                    </div>
+                    <Label className="text-sm font-medium">Do you have any pre-existing medical conditions?</Label>
+                    <RadioGroup
+                      value={editedDetails.hasPreexistingDiseases ? "yes" : "no"}
+                      onValueChange={(value) => handleDetailChange("hasPreexistingDiseases", value === "yes")}
+                      className="flex gap-6 pt-2"
+                    >
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="no" id="edit-medical-no" />
+                        <Label htmlFor="edit-medical-no" className="cursor-pointer font-normal text-sm">No</Label>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <RadioGroupItem value="yes" id="edit-medical-yes" />
+                        <Label htmlFor="edit-medical-yes" className="cursor-pointer font-normal text-sm">Yes</Label>
+                      </div>
+                    </RadioGroup>
                     {(editedDetails.hasPreexistingDiseases || state.insuranceProposal.hasPreexistingDiseases) && (
                       <div className="p-3 rounded-lg border bg-muted/30 space-y-2">
                         <Label className="text-xs font-medium">Selected Conditions:</Label>
@@ -742,7 +747,7 @@ export function CustomerConfirmationStep() {
               />
               <Label htmlFor="consent-healthy" className="cursor-pointer flex-1">
                 <p className="font-medium">
-                  {state.insuranceProposal.hasPreexistingDiseases
+                  {(isEditingDetails ? editedDetails.hasPreexistingDiseases : state.insuranceProposal.hasPreexistingDiseases)
                     ? "I confirm that I have declared my pre-existing disease(s) and the details provided are accurate"
                     : "I confirm that I am healthy and do not have any pre-existing disease"}
                 </p>
