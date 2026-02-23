@@ -608,6 +608,17 @@ export function CustomerConfirmationStep() {
                               ))}
                             </ul>
                           </div>
+                          <div className="pt-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEditProduct(item)}
+                              className="text-xs h-7"
+                            >
+                              <Edit2 className="size-3 mr-1" />
+                              Edit
+                            </Button>
+                          </div>
                         </div>
                       </div>
                     </div>
