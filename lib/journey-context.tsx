@@ -101,7 +101,7 @@ const defaultLoanApplication: Partial<LoanApplicationData> = {
   loanAmount: "3000000",
   loanTenure: "12",
   educationType: "ug",
-  moratorium: "12",
+  moratorium: "0",
   gender: "male",
   annualIncome: "800000",
   occupation: "Student",

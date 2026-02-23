@@ -238,8 +238,6 @@ export function LoanApplicationStep() {
                     <SelectItem value="1">1 Year</SelectItem>
                     <SelectItem value="2">2 Years</SelectItem>
                     <SelectItem value="3">3 Years</SelectItem>
-                    <SelectItem value="5">5 Years</SelectItem>
-                    <SelectItem value="12">12 Years</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
