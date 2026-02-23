@@ -22,19 +22,6 @@ const productTypeLabels: Record<string, string> = {
   health: "Health Insurance",
 }
 
-const companyLabels: Record<string, string> = {
-  "bajaj-general": "Bajaj General",
-  "bajaj-life": "Bajaj Life",
-  "bajaj-finserv-health": "Bajaj Finserv Health",
-  "health-assure": "Health Assure",
-  "icici": "ICICI Lombard",
-  "max-life": "Max Life",
-  "hdfc-life": "HDFC Life",
-  "care-health": "Care Health",
-  "zuno": "Zuno",
-  "new-life": "New Life",
-}
-
 const companyLogos: Record<string, string> = {
   "bajaj-general": "/bajaj-general-logo.png",
   "bajaj-life": "/bajaj-life-logo.avif",
@@ -392,8 +379,6 @@ function SummaryPanel({
 export function InsuranceRecommendationsStep() {
   const { state, setCurrentStep, addSelectedProduct, removeSelectedProduct, updateProductConfig } = useJourney()
   const [searchTerm, setSearchTerm] = useState("")
-  const [filterType, setFilterType] = useState("all")
-  const [filterCompany, setFilterCompany] = useState("all")
   const [editingProduct, setEditingProduct] = useState(null)
   const [compareProducts, setCompareProducts] = useState(new Set())
   const [showComparison, setShowComparison] = useState(false)
@@ -406,19 +391,17 @@ export function InsuranceRecommendationsStep() {
         product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.insurerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         productTypeLabels[product.productType].toLowerCase().includes(searchTerm.toLowerCase())
-
-      const matchesType = filterType === "all" || product.productType === filterType
-      const matchesCompany = filterCompany === "all" || product.companyCategory === filterCompany
-
-      return matchesSearch && matchesType && matchesCompany
+      return matchesSearch
     })
-  }, [searchTerm, filterType, filterCompany])
+  }, [searchTerm])
 
   const handleSelectProduct = (product: InsuranceProductData) => {
-    // Use availableSumInsured if available, otherwise use sumInsured
+    const existingInCategory = state.selectedInsuranceProducts.find(
+      (p) => p.product.productType === product.productType
+    )
+    if (existingInCategory) removeSelectedProduct(existingInCategory.product.insurerId)
     const sumInsuredToUse = product.availableSumInsured?.[0] || product.sumInsured
     addSelectedProduct(product, sumInsuredToUse)
-    // setShowSummaryPanel(true)
   }
 
   const handleEditProduct = (product: InsuranceProductData, sumInsured: string, premium: number) => {
@@ -428,10 +411,14 @@ export function InsuranceRecommendationsStep() {
 
   const totalPremium = state.selectedInsuranceProducts.reduce((sum, p) => sum + p.calculatedPremium, 0)
 
-  const filteredAndSortedProducts = filteredProducts.sort((a, b) => {
-    const typeOrder = { "Health Insurance": 0, "Credit Life Insurance": 1, "Home Insurance": 2, "Wellness OPD": 3 }
-    return (typeOrder[productTypeLabels[a.productType]] || 999) - (typeOrder[productTypeLabels[b.productType]] || 999)
-  })
+  const categoryOrder: (keyof typeof productTypeLabels)[] = ["vas", "creditlife", "health", "travel"]
+  const productsByCategory = useMemo(() => {
+    const map: Record<string, typeof insuranceProducts> = { vas: [], creditlife: [], health: [], travel: [] }
+    filteredProducts.forEach((p) => {
+      if (map[p.productType]) map[p.productType].push(p)
+    })
+    return map
+  }, [filteredProducts])
 
   return (
     <div className="space-y-6 pb-32">
@@ -461,38 +448,6 @@ export function InsuranceRecommendationsStep() {
         </div>
 
         <div className="flex gap-4 flex-wrap items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-muted-foreground">Filters:</span>
-          </div>
-
-          <Select value={filterType} onValueChange={setFilterType}>
-            <SelectTrigger className="px-3 py-1 text-sm border rounded-md">
-              <SelectValue placeholder="All Insurance Types" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Insurance Types</SelectItem>
-              {Object.entries(productTypeLabels).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={filterCompany} onValueChange={setFilterCompany}>
-            <SelectTrigger className="px-3 py-1 text-sm border rounded-md">
-              <SelectValue placeholder="All Companies" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Companies</SelectItem>
-              {Object.entries(companyLabels).map(([key, label]) => (
-                <SelectItem key={key} value={key}>
-                  {label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
           <div className="ml-auto flex gap-2">
             {compareProducts.size > 0 && (
               <Button onClick={() => setShowComparison(true)} variant="outline" size="sm">
@@ -503,17 +458,23 @@ export function InsuranceRecommendationsStep() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredAndSortedProducts.length === 0 ? (
-          <div className="col-span-full text-center py-12">
-            <p className="text-muted-foreground">No products found matching your filters.</p>
-          </div>
-        ) : (
-          filteredAndSortedProducts.map((product) => {
-            const isSelected = selectedIds.has(product.insurerId)
-            const isCompared = compareProducts.has(product.insurerId)
+      <p className="text-sm text-muted-foreground">You can select only one product per category (VAS, Travel, Credit Life, Health).</p>
 
-            return (
+      <div className="space-y-8">
+        {categoryOrder.every((c) => !productsByCategory[c]?.length) ? (
+          <div className="text-center py-12 text-muted-foreground">No products found matching your search.</div>
+        ) : (
+        categoryOrder.map((category) => {
+          const products = productsByCategory[category]
+          if (!products?.length) return null
+          return (
+            <div key={category}>
+              <h2 className="text-lg font-semibold text-foreground mb-4">{productTypeLabels[category]}</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {products.map((product) => {
+                  const isSelected = selectedIds.has(product.insurerId)
+                  const isCompared = compareProducts.has(product.insurerId)
+                  return (
               <Card key={product.insurerId} className="flex flex-col border border-border hover:shadow-md transition-shadow">
                 {/* Compare Checkbox */}
                 <div className="absolute top-3 right-3 flex items-center gap-1">
@@ -612,7 +573,11 @@ export function InsuranceRecommendationsStep() {
                 </CardContent>
               </Card>
             )
-          })
+                })}
+              </div>
+            </div>
+          )
+        })}
         )}
       </div>
 

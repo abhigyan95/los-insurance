@@ -30,6 +30,23 @@ const companyLogos: Record<string, string> = {
   "new-life": "/placeholder-logo.png",
 }
 
+const productTypeLabels: Record<string, string> = {
+  vas: "VAS – Health Insurance",
+  travel: "Travel Insurance",
+  creditlife: "MRTA / Credit Life Insurance",
+  health: "Health Insurance",
+}
+
+const CATEGORY_ORDER: (keyof typeof productTypeLabels)[] = ["vas", "creditlife", "health", "travel"]
+
+function groupProductsByCategory(products: InsuranceProductData[]) {
+  const map: Record<string, InsuranceProductData[]> = { vas: [], travel: [], creditlife: [], health: [] }
+  products.forEach((p) => {
+    if (map[p.productType]) map[p.productType].push(p)
+  })
+  return map
+}
+
 const medicalConditions = [
   "Diabetes",
   "Hypertension",
@@ -192,6 +209,11 @@ export function CustomerConfirmationStep() {
     if (isAlreadySelected) {
       if (totalSelected > 1) removeSelectedProduct(product.insurerId)
     } else {
+      // One product per category: remove existing selection in this category, then add new one
+      const existingInCategory = state.selectedInsuranceProducts.find(
+        (p) => p.product.productType === product.productType
+      )
+      if (existingInCategory) removeSelectedProduct(existingInCategory.product.insurerId)
       const sumInsuredToUse = product.availableSumInsured?.[0] || product.sumInsured
       addSelectedProduct(product, sumInsuredToUse)
     }
@@ -639,33 +661,44 @@ export function CustomerConfirmationStep() {
           </CardContent>
         </Card>
 
-        {/* All Products List - Minimal */}
+        {/* All Products List - Expanded by default, two columns */}
         <Card className="mb-6 border-dashed">
-          <Accordion type="single" collapsible>
+          <Accordion type="single" collapsible defaultValue="all-products">
             <AccordionItem value="all-products" className="border-none">
               <AccordionTrigger className="py-3 px-4 text-sm text-muted-foreground hover:no-underline">
                 <span className="text-xs">View all available products ({insuranceProducts.length})</span>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4">
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {insuranceProducts.map((product) => {
-                    const isSelected = selectedIds.has(product.insurerId)
+                <div className="space-y-4">
+                  {CATEGORY_ORDER.map((category) => {
+                    const productsInCategory = groupProductsByCategory(insuranceProducts)[category]
+                    if (!productsInCategory?.length) return null
                     return (
-                      <div
-                        key={product.insurerId}
-                        className={`flex items-center justify-between p-2 rounded text-xs ${
-                          isSelected ? "bg-primary/10 border border-primary/20" : "bg-muted/30"
-                        }`}
-                      >
-                        <div className="flex-1">
-                          <span className="font-medium">{product.productName}</span>
-                          <span className="text-muted-foreground ml-2">- {product.insurerName}</span>
+                      <div key={category}>
+                        <p className="text-xs font-semibold text-muted-foreground mb-2">{productTypeLabels[category]}</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {productsInCategory.map((product) => {
+                            const isSelected = selectedIds.has(product.insurerId)
+                            return (
+                              <div
+                                key={product.insurerId}
+                                className={`flex items-center justify-between p-2 rounded text-xs ${
+                                  isSelected ? "bg-primary/10 border border-primary/20" : "bg-muted/30"
+                                }`}
+                              >
+                                <div className="flex-1 min-w-0">
+                                  <span className="font-medium">{product.productName}</span>
+                                  <span className="text-muted-foreground ml-2">- {product.insurerName}</span>
+                                </div>
+                                {isSelected && (
+                                  <Badge variant="outline" className="text-xs shrink-0">
+                                    Selected
+                                  </Badge>
+                                )}
+                              </div>
+                            )
+                          })}
                         </div>
-                        {isSelected && (
-                          <Badge variant="outline" className="text-xs">
-                            Selected
-                          </Badge>
-                        )}
                       </div>
                     )
                   })}
@@ -675,48 +708,58 @@ export function CustomerConfirmationStep() {
           </Accordion>
         </Card>
 
-        {/* Edit Products Modal */}
+        {/* Edit Products Modal - Grouped by category */}
         <Dialog open={showEditProductsModal} onOpenChange={setShowEditProductsModal}>
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Edit Product Selection</DialogTitle>
+              <p className="text-sm text-muted-foreground">You can select only one product per category.</p>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-96 overflow-y-auto">
-                {insuranceProducts.map((product) => {
-                  const isSelected = selectedIds.has(product.insurerId)
-                  return (
-                    <Card
-                      key={product.insurerId}
-                      className={`cursor-pointer transition-all ${
-                        isSelected ? "border-primary bg-primary/5" : "hover:border-primary/50"
-                      }`}
-                      onClick={() => handleSelectProductInModal(product)}
-                    >
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-sm">{product.productName}</h4>
-                            <p className="text-xs text-muted-foreground">{product.insurerName}</p>
-                            <p className="text-xs mt-1">Sum Insured: {product.sumInsured}</p>
-                            {isSelected && state.selectedInsuranceProducts.length > 1 && (
-                              <p className="text-xs text-muted-foreground mt-1">Click to deselect</p>
-                            )}
-                          </div>
-                          {isSelected && (
-                            <CheckCircleIcon className="size-5 text-primary shrink-0" />
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  )
-                })}
-              </div>
-              <div className="flex justify-end gap-2 pt-4 border-t">
-                <Button variant="outline" onClick={() => setShowEditProductsModal(false)}>
-                  Done
-                </Button>
-              </div>
+            <div className="space-y-6">
+              {CATEGORY_ORDER.map((category) => {
+                const productsInCategory = groupProductsByCategory(insuranceProducts)[category]
+                if (!productsInCategory?.length) return null
+                return (
+                  <div key={category}>
+                    <h4 className="font-semibold text-sm text-foreground mb-3">{productTypeLabels[category]}</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      {productsInCategory.map((product) => {
+                        const isSelected = selectedIds.has(product.insurerId)
+                        return (
+                          <Card
+                            key={product.insurerId}
+                            className={`cursor-pointer transition-all ${
+                              isSelected ? "border-primary bg-primary/5" : "hover:border-primary/50"
+                            }`}
+                            onClick={() => handleSelectProductInModal(product)}
+                          >
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <h4 className="font-semibold text-sm">{product.productName}</h4>
+                                  <p className="text-xs text-muted-foreground">{product.insurerName}</p>
+                                  <p className="text-xs mt-1">Sum Insured: {product.sumInsured}</p>
+                                  {isSelected && state.selectedInsuranceProducts.length > 1 && (
+                                    <p className="text-xs text-muted-foreground mt-1">Click to deselect</p>
+                                  )}
+                                </div>
+                                {isSelected && (
+                                  <CheckCircleIcon className="size-5 text-primary shrink-0" />
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+            <div className="flex justify-end gap-2 pt-4 border-t">
+              <Button variant="outline" onClick={() => setShowEditProductsModal(false)}>
+                Done
+              </Button>
             </div>
           </DialogContent>
         </Dialog>

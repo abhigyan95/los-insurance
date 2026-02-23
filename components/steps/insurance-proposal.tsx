@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { AlertCircleIcon, LockIcon, CheckCircleIcon, ArrowLeftIcon } from "lucide-react"
 import Image from "next/image"
 
@@ -331,17 +332,21 @@ export function InsuranceProposalStep() {
           <div className="space-y-4">
             <h3 className="font-semibold text-lg text-foreground">Medical Information</h3>
             <div className="space-y-4">
-              <div className="flex items-start gap-3 p-4 rounded-lg border">
-                <Checkbox
-                  id="hasPreexistingDiseases"
-                  checked={proposalData.hasPreexistingDiseases || false}
-                  onCheckedChange={(checked) => handleChange("hasPreexistingDiseases", checked as boolean)}
-                  className="mt-1"
-                />
-                <Label htmlFor="hasPreexistingDiseases" className="cursor-pointer flex-1">
-                  <p className="font-medium">Do you have any pre-existing medical conditions?</p>
-                </Label>
-              </div>
+              <Label className="text-base font-medium">Do you have any pre-existing medical conditions?</Label>
+              <RadioGroup
+                value={proposalData.hasPreexistingDiseases ? "yes" : "no"}
+                onValueChange={(value) => handleChange("hasPreexistingDiseases", value === "yes")}
+                className="flex gap-6 pt-2"
+              >
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="no" id="medical-no" />
+                  <Label htmlFor="medical-no" className="cursor-pointer font-normal">No</Label>
+                </div>
+                <div className="flex items-center gap-2">
+                  <RadioGroupItem value="yes" id="medical-yes" />
+                  <Label htmlFor="medical-yes" className="cursor-pointer font-normal">Yes</Label>
+                </div>
+              </RadioGroup>
 
               {proposalData.hasPreexistingDiseases && (
                 <div className="p-4 rounded-lg border bg-muted/30 space-y-3">
