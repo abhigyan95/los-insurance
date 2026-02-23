@@ -176,7 +176,6 @@ export function CustomerConfirmationStep() {
   const [consentHealthy, setConsentHealthy] = useState(false)
   const [consentShareDetails, setConsentShareDetails] = useState(false)
   const [consentDeductPremium, setConsentDeductPremium] = useState(false)
-  const [showEditProductsModal, setShowEditProductsModal] = useState(false)
   const [showAllProducts, setShowAllProducts] = useState(false)
   const [isEditingDetails, setIsEditingDetails] = useState(false)
   const [editingProduct, setEditingProduct] = useState<InsuranceProductData | null>(null)
@@ -296,16 +295,10 @@ export function CustomerConfirmationStep() {
         {/* Application Details */}
         <Card className="mb-6">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
-                <FileTextIcon className="size-5" />
-                Application Details
-              </CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setCurrentStep(1)} className="gap-2">
-                <Edit2 className="size-4" />
-                Edit Application details
-              </Button>
-            </div>
+            <CardTitle className="flex items-center gap-2">
+              <FileTextIcon className="size-5" />
+              Application Details
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 rounded-lg bg-muted/30">
@@ -537,25 +530,14 @@ export function CustomerConfirmationStep() {
         {/* Selected Products */}
         <Card className="mb-6">
           <CardHeader>
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="flex items-center gap-2">
-                  <PackageIcon className="size-5" />
-                  Selected Third-Party Products ({totalProducts})
-                </CardTitle>
-                <CardDescription>
-                  Review the insurance and VAS products selected for your application
-                </CardDescription>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowEditProductsModal(true)}
-                className="text-xs h-8"
-              >
-                <Edit2 className="size-3 mr-1" />
-                Edit Products
-              </Button>
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                <PackageIcon className="size-5" />
+                Selected Third-Party Products ({totalProducts})
+              </CardTitle>
+              <CardDescription>
+                Review the insurance and VAS products selected for your application
+              </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -565,15 +547,8 @@ export function CustomerConfirmationStep() {
                   {state.selectedInsuranceProducts.map((item, index) => (
                     <div
                       key={item.product.insurerId}
-                      role={totalProducts > 1 ? "button" : undefined}
-                      tabIndex={totalProducts > 1 ? 0 : undefined}
-                      onClick={totalProducts > 1 ? () => handleRemoveProduct(item.product.insurerId) : undefined}
-                      onKeyDown={totalProducts > 1 ? (e) => e.key === "Enter" && handleRemoveProduct(item.product.insurerId) : undefined}
-                      className={`border rounded-lg p-4 bg-card transition-colors ${totalProducts > 1 ? "cursor-pointer hover:bg-destructive/10 hover:border-destructive/30" : "hover:bg-muted/30"}`}
+                      className="border rounded-lg p-4 bg-card transition-colors"
                     >
-                      {totalProducts > 1 && (
-                        <p className="text-xs text-muted-foreground mb-2">Click to remove product</p>
-                      )}
                       <div className="flex items-start gap-4">
                         <Image
                           src={companyLogos[item.product.companyCategory] || "/placeholder-logo.png"}
@@ -628,17 +603,6 @@ export function CustomerConfirmationStep() {
                               ))}
                             </ul>
                           </div>
-                          <div className="pt-2" onClick={(e) => e.stopPropagation()}>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleEditProduct(item)}
-                              className="text-xs h-7"
-                            >
-                              <Edit2 className="size-3 mr-1" />
-                              Edit
-                            </Button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -679,16 +643,25 @@ export function CustomerConfirmationStep() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {productsInCategory.map((product) => {
                             const isSelected = selectedIds.has(product.insurerId)
+                            const canDeselect = isSelected && state.selectedInsuranceProducts.length > 1
+                            const isClickable = !isSelected || canDeselect
                             return (
                               <div
                                 key={product.insurerId}
+                                role={isClickable ? "button" : undefined}
+                                tabIndex={isClickable ? 0 : undefined}
+                                onClick={isClickable ? () => handleSelectProductInModal(product) : undefined}
+                                onKeyDown={isClickable ? (e) => e.key === "Enter" && handleSelectProductInModal(product) : undefined}
                                 className={`flex items-center justify-between p-2 rounded text-xs ${
                                   isSelected ? "bg-primary/10 border border-primary/20" : "bg-muted/30"
-                                }`}
+                                } ${isClickable ? "cursor-pointer hover:opacity-90" : ""}`}
                               >
                                 <div className="flex-1 min-w-0">
                                   <span className="font-medium">{product.productName}</span>
                                   <span className="text-muted-foreground ml-2">- {product.insurerName}</span>
+                                  {isSelected && canDeselect && (
+                                    <p className="text-muted-foreground mt-0.5">Click to remove</p>
+                                  )}
                                 </div>
                                 {isSelected && (
                                   <Badge variant="outline" className="text-xs shrink-0">
@@ -708,63 +681,7 @@ export function CustomerConfirmationStep() {
           </Accordion>
         </Card>
 
-        {/* Edit Products Modal - Grouped by category */}
-        <Dialog open={showEditProductsModal} onOpenChange={setShowEditProductsModal}>
-          <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Edit Product Selection</DialogTitle>
-              <p className="text-sm text-muted-foreground">You can select only one product per category.</p>
-            </DialogHeader>
-            <div className="space-y-6">
-              {CATEGORY_ORDER.map((category) => {
-                const productsInCategory = groupProductsByCategory(insuranceProducts)[category]
-                if (!productsInCategory?.length) return null
-                return (
-                  <div key={category}>
-                    <h4 className="font-semibold text-sm text-foreground mb-3">{productTypeLabels[category]}</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {productsInCategory.map((product) => {
-                        const isSelected = selectedIds.has(product.insurerId)
-                        return (
-                          <Card
-                            key={product.insurerId}
-                            className={`cursor-pointer transition-all ${
-                              isSelected ? "border-primary bg-primary/5" : "hover:border-primary/50"
-                            }`}
-                            onClick={() => handleSelectProductInModal(product)}
-                          >
-                            <CardContent className="p-4">
-                              <div className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <h4 className="font-semibold text-sm">{product.productName}</h4>
-                                  <p className="text-xs text-muted-foreground">{product.insurerName}</p>
-                                  <p className="text-xs mt-1">Sum Insured: {product.sumInsured}</p>
-                                  {isSelected && state.selectedInsuranceProducts.length > 1 && (
-                                    <p className="text-xs text-muted-foreground mt-1">Click to deselect</p>
-                                  )}
-                                </div>
-                                {isSelected && (
-                                  <CheckCircleIcon className="size-5 text-primary shrink-0" />
-                                )}
-                              </div>
-                            </CardContent>
-                          </Card>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button variant="outline" onClick={() => setShowEditProductsModal(false)}>
-                Done
-              </Button>
-            </div>
-          </DialogContent>
-        </Dialog>
-
-        {/* Edit Product Modal */}
+        {/* Edit Product Modal (for editing sum insured - kept for potential future use) */}
         {editingProduct && (
           <Dialog open={!!editingProduct} onOpenChange={() => setEditingProduct(null)}>
             <DialogContent className="max-w-md">
